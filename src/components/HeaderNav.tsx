@@ -39,23 +39,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         left-0
         right-0
         z-50
-
         px-3.5
         sm:px-6
         md:px-8
-
         py-2.5
         sm:py-3
-
         backdrop-blur-xl
-
         border-b
-
         will-change-transform
-
         opacity-0
         pointer-events-none
-
+        transition-colors
+        duration-300
         ${
           isLight
             ? `
@@ -64,7 +59,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               shadow-[0_8px_30px_rgba(15,23,42,0.07)]
             `
             : `
-              bg-[#080d0c]/92
+              bg-[#080d0c]/95
               border-neutral-800/80
             `
         }
@@ -80,13 +75,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           gap-3
         "
       >
-
         {/* =====================================================
             BRAND
         ====================================================== */}
 
         <button
+          type="button"
           onClick={onNavigateToHome}
+          title="YEG Production - Kembali ke Beranda"
           className="
             flex
             items-center
@@ -96,13 +92,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             cursor-pointer
             text-left
             shrink-0
+            outline-none
+            focus-visible:ring-2
+            focus-visible:ring-[#0a7463]
+            focus-visible:ring-offset-2
+            rounded-lg
           "
-          title="YEG Production - Kembali ke Beranda"
         >
-
-          {/* =================================================
-              MORPH TARGET LOGO
-          ================================================== */}
+          {/* LOGO */}
 
           <div
             id="floating-logo"
@@ -136,6 +133,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 font-heading
                 leading-tight
                 transition-colors
+                duration-300
                 ${
                   isLight
                     ? 'text-slate-900 group-hover:text-[#0a7463]'
@@ -152,6 +150,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 sm:text-xs
                 font-mono
                 tracking-wider
+                transition-colors
+                duration-300
                 ${
                   isLight
                     ? 'text-slate-500'
@@ -178,41 +178,39 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             will-change-transform
           "
         >
-
-          {/* PROFILE */}
+          {/* =================================================
+              PROFILE / BACK
+          ================================================== */}
 
           {currentView === 'home' ? (
             <button
               id="floating-profile-cta"
+              type="button"
               onClick={onNavigateToCv}
               title="Buka 1 Halaman Profil & CV Lengkap"
+              aria-label="Profil Founder"
               className={`
                 inline-flex
                 items-center
                 justify-center
                 gap-1.5
-
                 p-2
                 sm:px-3.5
                 sm:py-2
-
                 text-xs
                 sm:text-sm
-
                 font-bold
-
                 rounded-xl
-
                 border
-
                 transition-all
-
+                duration-200
                 hover:scale-105
                 active:scale-95
-
                 cursor-pointer
                 whitespace-nowrap
-
+                outline-none
+                focus-visible:ring-2
+                focus-visible:ring-sky-500
                 ${
                   isLight
                     ? `
@@ -227,10 +225,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                       from-[#0369a1]
                       to-[#0284c7]
                       border-[#38bdf8]/40
+                      hover:brightness-110
                     `
                 }
               `}
-              aria-label="Profil Founder"
             >
               <User className="w-4 h-4" />
 
@@ -240,32 +238,31 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             </button>
           ) : (
             <button
+              type="button"
               onClick={onNavigateToHome}
               title="Kembali ke Presentasi Model Bisnis YEG"
+              aria-label="Presentasi Bisnis"
               className={`
                 inline-flex
                 items-center
                 justify-center
                 gap-1.5
-
                 p-2
                 sm:px-3.5
                 sm:py-2
-
                 text-xs
                 sm:text-sm
-
                 font-bold
-
                 rounded-xl
                 border
-
                 transition-all
-
+                duration-200
                 cursor-pointer
                 active:scale-95
                 whitespace-nowrap
-
+                outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#0a7463]
                 ${
                   isLight
                     ? `
@@ -273,6 +270,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                       bg-slate-50
                       border-slate-200
                       hover:border-[#0a7463]
+                      hover:bg-white
                     `
                     : `
                       text-white
@@ -282,9 +280,17 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     `
                 }
               `}
-              aria-label="Presentasi Bisnis"
             >
-              <ArrowLeft className="w-4 h-4 text-[#0a7463]" />
+              <ArrowLeft
+                className={`
+                  w-4 h-4
+                  ${
+                    isLight
+                      ? 'text-[#0a7463]'
+                      : 'text-[#34d399]'
+                  }
+                `}
+              />
 
               <span className="hidden sm:inline">
                 Presentasi Bisnis
@@ -292,37 +298,37 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             </button>
           )}
 
-          {/* DOWNLOAD */}
+          {/* =================================================
+              DOWNLOAD
+          ================================================== */}
 
           <button
             id="floating-download-cta"
+            type="button"
             onClick={downloadPitchDeckPdf}
             title="Unduh Pitch Deck"
+            aria-label="Unduh Pitch Deck 16:9"
             className={`
               inline-flex
               items-center
               justify-center
               gap-1.5
-
               p-2
               sm:px-3
               sm:py-2
-
               text-xs
               sm:text-sm
-
               font-semibold
-
               rounded-xl
               border
-
               transition-all
-
+              duration-200
               shadow-sm
-
               cursor-pointer
               active:scale-95
-
+              outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#0a7463]
               ${
                 isLight
                   ? `
@@ -341,7 +347,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   `
               }
             `}
-            aria-label="Unduh Pitch Deck 16:9"
           >
             <Download className="w-4 h-4 text-[#0a7463]" />
 
@@ -351,42 +356,38 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           </button>
 
           {/* =================================================
-              MORPH TARGET CTA
+              CONTACT FOUNDER
           ================================================== */}
 
           <button
             id="floating-founder-cta"
+            type="button"
             onClick={onOpenCandidateForm}
             title="Hubungi Founder"
+            aria-label="Hubungi Founder"
             className={`
               inline-flex
               items-center
               justify-center
               gap-1.5
-
               p-2
               sm:px-3.5
               sm:py-2
-
               text-xs
               sm:text-sm
-
               font-bold
-
               rounded-xl
               border
-
               transition-all
-
+              duration-200
               shadow-sm
-
               whitespace-nowrap
-
               cursor-pointer
               active:scale-95
-
               will-change-transform
-
+              outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#34d399]
               ${
                 isLight
                   ? `
@@ -404,7 +405,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   `
               }
             `}
-            aria-label="Hubungi Founder"
           >
             <MessageSquareShare className="w-4 h-4" />
 
@@ -414,11 +414,12 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           </button>
 
           {/* =================================================
-              DAY / NIGHT
+              THEME TOGGLE
           ================================================== */}
 
           <button
             id="theme-toggle"
+            type="button"
             onClick={onToggleTheme}
             title={
               isLight
@@ -433,24 +434,22 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             className={`
               ml-0.5
               sm:ml-1
-
               inline-flex
               items-center
               justify-center
-
               w-9
               h-9
               sm:w-10
               sm:h-10
-
               rounded-full
               border
-
               transition-all
-
+              duration-200
               cursor-pointer
               active:scale-90
-
+              outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#0a7463]
               ${
                 isLight
                   ? `
