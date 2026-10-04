@@ -485,6 +485,112 @@ Terima kasih.`;
           : 'bg-[#080d0c] text-neutral-100'
       }`}
     >
+      <style>{`
+        /* ============================================================
+           YEG LIGHT THEME — HIGH CONTRAST OVERRIDES
+           Keep brand accents, images and GSAP effects intact.
+        ============================================================ */
+        [data-yeg-theme="light"] main .bg-\\[\\#080d0c\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#101715\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\],
+        [data-yeg-theme="light"] main .bg-neutral-900,
+        [data-yeg-theme="light"] main .bg-neutral-800 {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-black {
+          background-color: #f1f5f9 !important;
+        }
+
+        [data-yeg-theme="light"] main .text-white {
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .text-neutral-100 {
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .text-neutral-200 {
+          color: #1e293b !important;
+        }
+
+        [data-yeg-theme="light"] main .text-neutral-300 {
+          color: #334155 !important;
+        }
+
+        [data-yeg-theme="light"] main .text-neutral-400 {
+          color: #475569 !important;
+        }
+
+        [data-yeg-theme="light"] main .text-neutral-500 {
+          color: #64748b !important;
+        }
+
+        [data-yeg-theme="light"] main .border-neutral-800,
+        [data-yeg-theme="light"] main .border-neutral-700,
+        [data-yeg-theme="light"] main .border-neutral-800\\/80,
+        [data-yeg-theme="light"] main .border-neutral-700\\/80 {
+          border-color: #cbd5e1 !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] {
+          background-color: #ecfdf5 !important;
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] {
+          background: linear-gradient(135deg, #f8fafc, #eff6ff, #f0fdfa) !important;
+          border-color: #bfdbfe !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-gradient-to-r.from-\\[\\#0d1b2a\\] {
+          background: linear-gradient(90deg, #f8fafc, #eff6ff, #f0fdfa) !important;
+        }
+
+        [data-yeg-theme="light"] main .hover\\:text-white:hover {
+          color: #0a7463 !important;
+        }
+
+        [data-yeg-theme="light"] main .hover\\:bg-neutral-800:hover,
+        [data-yeg-theme="light"] main .hover\\:bg-neutral-900:hover {
+          background-color: #f1f5f9 !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-black\\/60 {
+          background-color: rgb(15 23 42 / 0.72) !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-black\\/40 {
+          background-color: rgb(15 23 42 / 0.42) !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-white\\/5 {
+          background-color: rgb(15 23 42 / 0.04) !important;
+        }
+
+        [data-yeg-theme="light"] main .border-white\\/10 {
+          border-color: rgb(15 23 42 / 0.10) !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\\[\\#34d399\\] {
+          color: #087f5b !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\\[\\#38bdf8\\] {
+          color: #0369a1 !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\\[\\#fbbf24\\] {
+          color: #b45309 !important;
+        }
+      `}</style>
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
       <HeaderNav
         currentView={currentView}
@@ -497,11 +603,11 @@ Terima kasih.`;
 
       {/* VIEW CONDITIONAL: DEDICATED 1-PAGE CV OR FULL BUSINESS PRESENTATION */}
       {currentView === 'cv' ? (
-        <main className="flex-1 pb-20">
+        <main className="flex-1 pb-20 yeg-theme-content">
           <FounderCVSection onBackToHome={navigateToHome} />
         </main>
       ) : (
-        <main className="flex-1 space-y-12 sm:space-y-20 md:space-y-24 pb-24">
+        <main className="flex-1 space-y-12 sm:space-y-20 md:space-y-24 pb-24 yeg-theme-content">
           {/* ============================================================
               HERO COVER SECTION WITH ENLARGED CREATIVE LOGO
           ============================================================ */}
