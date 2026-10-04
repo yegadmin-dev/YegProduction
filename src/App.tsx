@@ -40,6 +40,7 @@ export default function App() {
   const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
   const [conceptTab, setConceptTab] = useState<'sekarang' | 'sebelumnya'>('sekarang');
   const [scrollSectionIndex, setScrollSectionIndex] = useState<number>(1);
+  const floatingHeader = document.getElementById('yeg-floating-header');
 
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBadgeRef = useRef<HTMLDivElement>(null);
