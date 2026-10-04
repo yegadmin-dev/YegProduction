@@ -19,19 +19,16 @@ export const YegLogo: React.FC<YegLogoProps> = ({
 
   return (
     <div
-      className={`
-        relative inline-flex items-center justify-center
-        group
-        ${className}
-      `}
+      className={`relative inline-flex items-center justify-center group ${className}`}
       style={{
-        width: size,
-        height: size,
+        width: `${size}px`,
+        height: `${size}px`,
       }}
     >
-      {/* CIRCULAR SOFT GLOW */}
+      {/* PRIMARY SOFT GLOW */}
       {animated && (
         <div
+          aria-hidden="true"
           className={`
             absolute
             left-1/2
@@ -40,9 +37,9 @@ export const YegLogo: React.FC<YegLogoProps> = ({
             -translate-y-1/2
             rounded-full
             pointer-events-none
-            blur-[45px]
             transition-all
             duration-500
+            blur-[45px]
             ${
               theme === 'light'
                 ? `
@@ -67,6 +64,7 @@ export const YegLogo: React.FC<YegLogoProps> = ({
       {/* SECONDARY RADIAL GLOW */}
       {animated && (
         <div
+          aria-hidden="true"
           className={`
             absolute
             left-1/2
@@ -78,13 +76,14 @@ export const YegLogo: React.FC<YegLogoProps> = ({
             blur-[70px]
             ${
               theme === 'light'
-                ? 'w-[130%] h-[130%] bg-[#22c55e]/8'
-                : 'w-[140%] h-[140%] bg-[#0a7463]/12'
+                ? 'w-[130%] h-[130%] bg-[#22c55e]/[0.08]'
+                : 'w-[140%] h-[140%] bg-[#0a7463]/[0.12]'
             }
           `}
         />
       )}
 
+      {/* YEG LOGO */}
       <img
         src={logo}
         alt="YEG Production"
@@ -92,12 +91,14 @@ export const YegLogo: React.FC<YegLogoProps> = ({
         className="
           relative
           z-10
+          block
           w-full
           h-full
           object-contain
           select-none
           transition-transform
           duration-500
+          ease-out
           group-hover:scale-[1.025]
         "
       />
