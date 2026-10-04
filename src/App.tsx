@@ -40,6 +40,11 @@ export default function App() {
   const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
   const [conceptTab, setConceptTab] = useState<'sekarang' | 'sebelumnya'>('sekarang');
   const [scrollSectionIndex, setScrollSectionIndex] = useState<number>(1);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem('yeg-theme') === 'dark' ? 'dark' : 'light';
+  });
+
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBadgeRef = useRef<HTMLDivElement>(null);
   const heroLogoRef = useRef<HTMLDivElement>(null);
@@ -59,6 +64,15 @@ export default function App() {
   const navigateToHome = () => {
     setCurrentView('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    document.documentElement.dataset.yegTheme = theme;
+    localStorage.setItem('yeg-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((current) => (current === 'light' ? 'dark' : 'light'));
   };
   
     // Responsive GSAP animations using matchMedia (smooth on desktop, lightweight on mobile)
@@ -463,13 +477,22 @@ Terima kasih.`;
   ];
 
   return (
-    <div className="min-h-screen bg-[#080d0c] text-neutral-100 flex flex-col font-sans selection:bg-[#0a7463] selection:text-white">
+    <div
+      data-yeg-theme={theme}
+      className={`min-h-screen flex flex-col font-sans selection:bg-[#0a7463] selection:text-white transition-colors duration-300 ${
+        theme === 'light'
+          ? 'bg-slate-50 text-slate-900'
+          : 'bg-[#080d0c] text-neutral-100'
+      }`}
+    >
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
       <HeaderNav
         currentView={currentView}
         onNavigateToCv={navigateToCv}
         onNavigateToHome={navigateToHome}
         onOpenCandidateForm={() => setIsCandidateModalOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* VIEW CONDITIONAL: DEDICATED 1-PAGE CV OR FULL BUSINESS PRESENTATION */}
@@ -485,7 +508,9 @@ Terima kasih.`;
           <section
             ref={heroRef}
             id="hero-cover"
-            className="relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden"
+            className={`relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
+              theme === 'light' ? 'bg-white' : 'bg-[#080d0c]'
+            }`}
           >
             {/* Subtle Ambient Glow */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
