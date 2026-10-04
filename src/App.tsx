@@ -40,7 +40,7 @@ export default function App() {
   const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
   const [conceptTab, setConceptTab] = useState<'sekarang' | 'sebelumnya'>('sekarang');
   const [scrollSectionIndex, setScrollSectionIndex] = useState<number>(1);
-  const heroRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const heroBadgeRef = useRef<HTMLDivElement>(null);
   const heroLogoRef = useRef<HTMLDivElement>(null);
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
@@ -48,6 +48,7 @@ export default function App() {
   const heroTaglineRef = useRef<HTMLDivElement>(null);
   const heroDescRef = useRef<HTMLParagraphElement>(null);
   const heroCtasRef = useRef<HTMLDivElement>(null);
+  const heroFounderCtaRef = useRef<HTMLButtonElement>(null);
   const heroVisualRef = useRef<HTMLDivElement>(null);
   const heroMetricsRef = useRef<HTMLDivElement>(null);
 
@@ -61,27 +62,157 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-   ================================================
-        // YEG HERO → FLOATING NAV MORPH
-        // Scroll-driven / scrub based — PowerPoint Morph style.
-        // Desktop only: hero logo moves toward the real navbar logo,
-        // scales down, while the hero CTA transitions into the navbar.
-        // ============================================================
-        const header = document.querySelector('header') as HTMLElement | null;
+  // ============================================================
+  // RESPONSIVE GSAP ANIMATIONS
+  // HERO -> FLOATING NAV MORPH IS SCROLL DRIVEN.
+  // ============================================================
+  useLayoutEffect(() => {
+    if (currentView !== 'home') {
+      const header = document.getElementById('yeg-floating-header');
+      if (header) {
+        gsap.set(header, { autoAlpha: 1, y: 0 });
+        header.style.pointerEvents = 'auto';
+      }
+      return;
+    }
 
-        if (header && heroRef.current && heroLogoRef.current && heroCtasRef.current) {
-          const navbarLogo = header.querySelector('img') as HTMLElement | null;
-          // Make the existing HeaderNav behave as the floating navbar.
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      // ----------------------------------------------------------
+      // DESKTOP
+      // ----------------------------------------------------------
+      mm.add('(min-width: 768px)', () => {
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+        tl.fromTo(
+          heroBadgeRef.current,
+          { opacity: 0, y: -15 },
+          { opacity: 1, y: 0, duration: 0.5 }
+        )
+          .fromTo(
+            heroLogoRef.current,
+            { opacity: 0, scale: 0.9, rotation: -4 },
+            { opacity: 1, scale: 1, rotation: 0, duration: 0.65 },
+            '-=0.2'
+          )
+          .fromTo(
+            heroTitleRef.current,
+            { opacity: 0, y: 25 },
+            { opacity: 1, y: 0, duration: 0.6 },
+            '-=0.3'
+          )
+          .fromTo(
+            heroSubtitleRef.current,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.5 },
+            '-=0.3'
+          )
+          .fromTo(
+            heroTaglineRef.current,
+            { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.5 },
+            '-=0.3'
+          )
+          .fromTo(
+            heroDescRef.current,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.5 },
+            '-=0.2'
+          )
+          .fromTo(
+            heroCtasRef.current,
+            { opacity: 0, scale: 0.96, y: 15 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.5 },
+            '-=0.2'
+          )
+          .fromTo(
+            heroVisualRef.current,
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.7 },
+            '-=0.3'
+          )
+          .fromTo(
+            heroMetricsRef.current,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6 },
+            '-=0.4'
+          );
+
+        // ========================================================
+        // HERO LOGO -> NAV LOGO / HERO CTA -> NAV CTA
+        // True scroll-driven FLIP-style morph.
+        // ========================================================
+        const header = document.getElementById('yeg-floating-header');
+        const floatingLogo = document.getElementById('floating-logo');
+        const floatingFounderCta = document.getElementById('floating-founder-cta');
+
+        if (
+          header &&
+          floatingLogo &&
+          floatingFounderCta &&
+          heroRef.current &&
+          heroLogoRef.current &&
+          heroFounderCtaRef.current
+        ) {
+          // Header is present in the DOM from the first render, but visually
+          // hidden until the morph starts.
           gsap.set(header, {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 50,
-            opacity: 0,
-            y: -20,
-            pointerEvents: 'none',
+            autoAlpha: 0,
+            y: -14,
           });
+
+          gsap.set(floatingLogo, {
+            autoAlpha: 1,
+          });
+
+          gsap.set(floatingFounderCta, {
+            autoAlpha: 1,
+          });
+
+          const getLogoMorph = () => {
+            const source = heroLogoRef.current?.getBoundingClientRect();
+            const target = floatingLogo.getBoundingClientRect();
+
+            if (!source || !target) {
+              return { x: 0, y: 0, scale: 1 };
+            }
+
+            return {
+              x:
+                target.left + target.width / 2 -
+                (source.left + source.width / 2),
+              y:
+                target.top + target.height / 2 -
+                (source.top + source.height / 2),
+              scale: Math.min(
+                target.width / source.width,
+                target.height / source.height
+              ),
+            };
+          };
+
+          const getCtaMorph = () => {
+            const source = heroFounderCtaRef.current?.getBoundingClientRect();
+            const target = floatingFounderCta.getBoundingClientRect();
+
+            if (!source || !target) {
+              return { x: 0, y: 0, scale: 1 };
+            }
+
+            return {
+              x:
+                target.left + target.width / 2 -
+                (source.left + source.width / 2),
+              y:
+                target.top + target.height / 2 -
+                (source.top + source.height / 2),
+              scale: Math.min(
+                target.width / source.width,
+                target.height / source.height
+              ),
+            };
+          };
 
           const morphTl = gsap.timeline({
             scrollTrigger: {
@@ -90,85 +221,86 @@ export default function App() {
               end: '+=620',
               scrub: 1,
               invalidateOnRefresh: true,
+              onRefreshInit: () => {
+                gsap.set(heroLogoRef.current, { x: 0, y: 0, scale: 1 });
+                gsap.set(heroFounderCtaRef.current, { x: 0, y: 0, scale: 1 });
+              },
+              onUpdate: (self) => {
+                header.style.pointerEvents =
+                  self.progress > 0.03 ? 'auto' : 'none';
+              },
             },
           });
 
+          // Header fades/slides into the exact navbar position.
           morphTl.to(
             header,
             {
-              opacity: 1,
+              autoAlpha: 1,
               y: 0,
-              pointerEvents: 'auto',
-              duration: 0.28,
+              duration: 0.24,
               ease: 'none',
             },
             0
           );
 
-          // Hero logo → navbar logo.
-          if (navbarLogo) {
-            const from = heroLogoRef.current.getBoundingClientRect();
-            const to = navbarLogo.getBoundingClientRect();
-
-            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
-            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
-            const scale = Math.min(to.width / from.width, to.height / from.height);
-
-            morphTl.to(
-              heroLogoRef.current,
-              {
-                x: dx,
-                y: dy,
-                scale: Math.max(0.18, Math.min(scale, 0.5)),
-                duration: 1,
-                ease: 'power2.inOut',
-              },
-              0
-            );
-          } else {
-            morphTl.to(
-              heroLogoRef.current,
-              {
-                x: '35vw',
-                y: -260,
-                scale: 0.42,
-                duration: 1,
-                ease: 'power2.inOut',
-              },
-              0
-            );
-          }
-
-          // Fade the small BRANDMARK label during the morph.
-          const brandmark = heroLogoRef.current.querySelector('span');
-          if (brandmark) {
-            morphTl.to(
-              brandmark,
-              {
-                opacity: 0,
-                scale: 0.7,
-                duration: 0.35,
-                ease: 'none',
-              },
-              0.45
-            );
-          }
-
-          // Hero CTA travels upward and disappears as the navbar CTA arrives.
+          // The large hero logo travels to the real navbar logo.
           morphTl.to(
-            heroCtasRef.current,
+            heroLogoRef.current,
             {
-              y: -270,
-              scale: 0.72,
-              opacity: 0,
+              x: () => getLogoMorph().x,
+              y: () => getLogoMorph().y,
+              scale: () => getLogoMorph().scale,
               duration: 1,
               ease: 'power2.inOut',
             },
             0
           );
 
+          // Hide the hero-only brandmark as the logo enters the navbar.
+          const heroBrandmark = document.querySelector(
+            '[data-hero-brandmark]'
+          );
 
-          // Supporting hero copy gently moves away from the morph path.
+          if (heroBrandmark) {
+            morphTl.to(
+              heroBrandmark,
+              {
+                autoAlpha: 0,
+                duration: 0.25,
+                ease: 'none',
+              },
+              0.45
+            );
+          }
+
+          // The hero CTA travels to the exact navbar CTA position.
+          morphTl.to(
+            heroFounderCtaRef.current,
+            {
+              x: () => getCtaMorph().x,
+              y: () => getCtaMorph().y,
+              scale: () => getCtaMorph().scale,
+              autoAlpha: 0,
+              duration: 1,
+              ease: 'power2.inOut',
+            },
+            0
+          );
+
+          // Other hero buttons fade away instead of jumping.
+          morphTl.to(
+            heroCtasRef.current,
+            {
+              opacity: 0,
+              y: -35,
+              duration: 0.45,
+              ease: 'power2.out',
+            },
+            0.52
+          );
+
+          // Text gently gives visual priority to the navbar.
           morphTl.to(
             [
               heroTitleRef.current,
@@ -177,17 +309,19 @@ export default function App() {
               heroDescRef.current,
             ],
             {
-              y: -30,
-              opacity: 0.9,
+              y: -28,
+              opacity: 0.88,
               duration: 1,
               stagger: 0.025,
               ease: 'power2.out',
             },
             0
           );
+
+
         }
 
-        // Hero visual subtle parallax
+        // Hero visual subtle parallax.
         if (heroVisualRef.current) {
           gsap.to(heroVisualRef.current, {
             scrollTrigger: {
@@ -201,7 +335,7 @@ export default function App() {
           });
         }
 
-        // ClipPath reveal on desktop
+        // ClipPath reveal on desktop.
         const revealSections = document.querySelectorAll('.gsap-reveal-section');
         revealSections.forEach((section, index) => {
           const initialClip =
@@ -250,12 +384,25 @@ export default function App() {
         });
       });
 
-      // MOBILE (max-width: 767px): Lightweight smooth fade & subtle 20px slide (zero clipping)
+      // ----------------------------------------------------------
+      // MOBILE
+      // ----------------------------------------------------------
       mm.add('(max-width: 767px)', () => {
         gsap.fromTo(
-          [heroLogoRef.current, heroTitleRef.current, heroSubtitleRef.current, heroCtasRef.current],
+          [
+            heroLogoRef.current,
+            heroTitleRef.current,
+            heroSubtitleRef.current,
+            heroCtasRef.current,
+          ],
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power2.out',
+          }
         );
 
         const revealSections = document.querySelectorAll('.gsap-reveal-section');
@@ -277,7 +424,7 @@ export default function App() {
           );
         });
       });
-    }, heroRef);
+    });
 
     return () => ctx.revert();
   }, [currentView]);
@@ -420,32 +567,30 @@ Terima kasih.`;
           <section
             ref={heroRef}
             id="hero-cover"
-            className="relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden"
+            className="relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-visible"
           >
             {/* Subtle Ambient Glow */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
 
-            <div className="max-w-6xl mx-auto relative z-10">
-              {/* Top Badges */}
-              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2 mb-6 sm:mb-8">
-                <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
-                  CREATIVE PRODUCTION PLATFORM
-                </span>
-                <span className="text-neutral-500">·</span>
-                <span className="px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-700/80 text-[11px] sm:text-xs text-neutral-300 font-mono">
-                  Est. 2025 · Bandung
-                </span>
-              </div>
-
-              {/* HERO CONTENT: text left + large logo right */}
+            <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
-                <div className="space-y-6 sm:space-y-8">
-                  {/* Main Headline */}
+                {/* LEFT: Hero messaging */}
+                <div className="space-y-5 sm:space-y-7">
+                  <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
+                      CREATIVE PRODUCTION PLATFORM
+                    </span>
+                    <span className="text-neutral-500">·</span>
+                    <span className="px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-700/80 text-[11px] sm:text-xs text-neutral-300 font-mono">
+                      Est. 2025 · Bandung
+                    </span>
+                  </div>
+
                   <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
                     <h1
                       ref={heroTitleRef}
-                      className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight font-heading leading-[1.08]"
+                      className="text-3xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black text-white tracking-tight font-heading leading-[1.02]"
                     >
                       YEG PRODUCTION
                     </h1>
@@ -474,8 +619,7 @@ Terima kasih.`;
                     </p>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div ref={heroCtasRef} className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2 origin-left">
+                  <div ref={heroCtasRef} className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1">
                     <button
                       onClick={() => scrollToSection('section-tentang')}
                       className="px-4 py-2.5 sm:px-6 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#0a7463] hover:bg-[#086354] rounded-xl transition-all shadow-[0_4px_20px_rgba(10,116,99,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
@@ -486,6 +630,17 @@ Terima kasih.`;
                     </button>
 
                     <button
+                      ref={heroFounderCtaRef}
+                      onClick={() => setIsCandidateModalOpen(true)}
+                      className="px-4 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#0a7463] hover:bg-[#086354] border border-[#0a7463] rounded-xl transition-all shadow-[0_4px_20px_rgba(10,116,99,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer will-change-transform"
+                      title="Hubungi Founder"
+                      aria-label="Hubungi Founder"
+                    >
+                      <MessageSquareShare className="w-4 h-4" />
+                      <span>Hubungi Founder</span>
+                    </button>
+
+                    <button
                       onClick={navigateToCv}
                       className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-semibold text-white bg-gradient-to-r from-[#0369a1] to-[#0284c7] hover:from-[#0284c7] hover:to-[#38bdf8] border border-[#38bdf8]/40 rounded-xl transition-all hover:border-[#38bdf8] flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
                       title="Buka 1 Halaman Profil & CV Lengkap Kak Ridhwan"
@@ -493,16 +648,6 @@ Terima kasih.`;
                     >
                       <User className="w-4 h-4 text-white" />
                       <span className="hidden sm:inline">Profil Founder & CV</span>
-                    </button>
-
-                    <button
-                      onClick={handleOpenDirectWhatsApp}
-                      className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#15803d] hover:bg-[#166534] border border-[#22c55e]/50 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
-                      title="Chat WA Kak Ridhwan (+62 896-7484-9505)"
-                      aria-label="Chat WA Kak Ridhwan"
-                    >
-                      <MessageSquareShare className="w-4 h-4" />
-                      <span className="hidden sm:inline">Chat WA Founder</span>
                     </button>
 
                     <button
@@ -517,15 +662,22 @@ Terima kasih.`;
                   </div>
                 </div>
 
-                {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
-                <div
-                  ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
-                >
-                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
-                  <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} />
-                    <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
+                {/* RIGHT: Large brandmark. This exact element morphs into #floating-logo. */}
+                <div className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px]">
+                  <div className="absolute w-[240px] h-[240px] lg:w-[390px] lg:h-[390px] bg-[#0a7463]/20 rounded-full blur-[95px] pointer-events-none" />
+
+                  <div className="relative flex flex-col items-center justify-center z-10">
+                    <div
+                      ref={heroLogoRef}
+                      className="relative flex items-center justify-center origin-center will-change-transform"
+                    >
+                      <YegLogo size={360} animated={true} />
+                    </div>
+
+                    <span
+                      data-hero-brandmark
+                      className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold"
+                    >
                       YEG BRANDMARK
                     </span>
                   </div>
