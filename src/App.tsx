@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { HeaderNav } from './components/HeaderNav';
@@ -63,13 +63,14 @@ export default function App() {
   
     // Responsive GSAP animations using matchMedia
 (smooth on desktop, lightweight on mobile)
-  useEffect(() => {
+  useLayoutEffect(() => {
 if (currentView !== 'home') return;
 
 const ctx = gsap.context(() => {
 const mm = gsap.matchMedia(); 
 
-// DESKTOP (min-width: 768px): Full ClipPath Reveal, Parallax & Stagger mm.add('(min-width: 768px)', () => {
+// DESKTOP (min-width: 768px): Full ClipPath Reveal, Parallax & Stagger
+mm.add('(min-width: 768px)', () => {
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
 tl.fromTo(
@@ -152,7 +153,7 @@ heroMetricsRef.current,
             scrollTrigger: {
               trigger: heroRef.current,
               start: 'top top',
-              end: '+=520',
+              end: '+=620',
               scrub: 1,
               invalidateOnRefresh: true,
             },
