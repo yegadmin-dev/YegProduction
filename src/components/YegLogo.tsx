@@ -1,6 +1,6 @@
 import React from 'react';
 import yegLogoDark from '../assets/images/yeg-logo.png';
-import yegLogoLight from '../image/yeg-logo-siang.png';
+import yegLogoLight from '../assets/images/yeg-logo-siang.png';
 
 interface YegLogoProps {
   className?: string;
@@ -25,7 +25,6 @@ export const YegLogo: React.FC<YegLogoProps> = ({
         height: `${size}px`,
       }}
     >
-      {/* PRIMARY SOFT GLOW */}
       {animated && (
         <div
           aria-hidden="true"
@@ -61,7 +60,6 @@ export const YegLogo: React.FC<YegLogoProps> = ({
         />
       )}
 
-      {/* SECONDARY RADIAL GLOW */}
       {animated && (
         <div
           aria-hidden="true"
@@ -83,7 +81,6 @@ export const YegLogo: React.FC<YegLogoProps> = ({
         />
       )}
 
-      {/* YEG LOGO */}
       <img
         src={logo}
         alt="YEG Production"
