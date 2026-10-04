@@ -53,7 +53,6 @@ export default function App() {
   const heroTaglineRef = useRef<HTMLDivElement>(null);
   const heroDescRef = useRef<HTMLParagraphElement>(null);
   const heroCtasRef = useRef<HTMLDivElement>(null);
-  const heroVisualRef = useRef<HTMLDivElement>(null);
   const heroMetricsRef = useRef<HTMLDivElement>(null);
 
   const navigateToCv = () => {
@@ -126,12 +125,6 @@ heroCtasRef.current,
 { opacity: 0, scale: 0.96, y: 15 },
 { opacity: 1, scale: 1, y: 0, duration: 0.5 }, 
 '-=0.2' 
-) 
-.fromTo( 
-heroVisualRef.current, 
-{ opacity: 0, y: 30 }, 
-{ opacity: 1, y: 0, duration: 0.7 },
- '-=0.3'
 ) 
 .fromTo(
 heroMetricsRef.current, 
@@ -264,20 +257,6 @@ heroMetricsRef.current,
             },
             0
           );
-        }
-
-        // Hero visual subtle parallax
-        if (heroVisualRef.current) {
-          gsap.to(heroVisualRef.current, {
-            scrollTrigger: {
-              trigger: heroRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-            y: -25,
-            opacity: 0.95,
-          });
         }
 
         // ClipPath reveal on desktop
@@ -915,50 +894,56 @@ Terima kasih.`;
                 </div>
               </div>
 
-                {/* 4 Interactive Snapshot Metrics: Compact 2x2 grid on mobile */}
-                <div ref={heroMetricsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2 sm:pt-4">
-                  {[
-                    {
-                      num: '2025',
-                      label: 'Awal Mula Dirintis',
-                      sub: 'Project desain & branding',
-                      color: 'text-[#fbbf24]',
-                      border: 'hover:border-[#f59e0b]/50',
-                    },
-                    {
-                      num: '2 Pilar',
-                      label: 'Creative + Production',
-                      sub: 'Jasa visual + manufaktur fisik',
-                      color: 'text-[#38bdf8]',
-                      border: 'hover:border-[#0284c7]/50',
-                    },
-                    {
-                      num: '1 Partner',
-                      label: 'Production Partner',
-                      sub: 'Tumbuh bersama dari nol',
-                      color: 'text-[#34d399]',
-                      border: 'hover:border-[#0a7463]/50',
-                    },
-                    {
-                      num: '100%',
-                      label: 'Transparansi',
-                      sub: 'Bagi hasil project terbuka',
-                      color: 'text-[#e879f9]',
-                      border: 'hover:border-[#c026d3]/50',
-                    },
-                  ].map((stat, idx) => (
-                    <div
-                      key={idx}
-                      className={`gsap-card-stagger p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0f1514] border border-neutral-800 ${stat.border} transition-colors flex flex-col justify-center`}
-                    >
-                      <span className={`text-xl sm:text-3xl font-black ${stat.color} font-heading`}>
-                        {stat.num}
-                      </span>
-                      <span className="text-xs sm:text-sm font-bold text-white mt-0.5">{stat.label}</span>
-                      <span className="text-[10px] sm:text-xs text-neutral-400 mt-0.5 leading-tight">{stat.sub}</span>
-                    </div>
-                  ))}
-                </div>
+              {/* Key Highlights — horizontal layout, visual asset removed */}
+              <div
+                ref={heroMetricsRef}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2 sm:pt-4"
+              >
+                {[
+                  {
+                    num: '2025',
+                    label: 'Awal Mula Dirintis',
+                    sub: 'Project desain & branding',
+                    color: 'text-[#fbbf24]',
+                    border: 'hover:border-[#f59e0b]/50',
+                  },
+                  {
+                    num: '2 Pilar',
+                    label: 'Creative + Production',
+                    sub: 'Jasa visual + manufaktur fisik',
+                    color: 'text-[#38bdf8]',
+                    border: 'hover:border-[#0284c7]/50',
+                  },
+                  {
+                    num: '1 Partner',
+                    label: 'Production Partner',
+                    sub: 'Tumbuh bersama dari nol',
+                    color: 'text-[#34d399]',
+                    border: 'hover:border-[#0a7463]/50',
+                  },
+                  {
+                    num: '100%',
+                    label: 'Transparansi',
+                    sub: 'Bagi hasil project terbuka',
+                    color: 'text-[#e879f9]',
+                    border: 'hover:border-[#c026d3]/50',
+                  },
+                ].map((stat, idx) => (
+                  <div
+                    key={idx}
+                    className={`gsap-card-stagger p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[#0f1514] border border-neutral-800 ${stat.border} transition-colors flex flex-col justify-center min-h-[125px]`}
+                  >
+                    <span className={`text-2xl sm:text-3xl font-black ${stat.color} font-heading`}>
+                      {stat.num}
+                    </span>
+                    <span className="text-sm sm:text-base font-bold text-white mt-1">
+                      {stat.label}
+                    </span>
+                    <span className="text-xs sm:text-sm text-neutral-400 mt-1 leading-tight">
+                      {stat.sub}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
