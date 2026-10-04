@@ -1,5 +1,10 @@
 import React from 'react';
-import { Download, MessageSquareShare, User, ArrowLeft } from 'lucide-react';
+import {
+  Download,
+  MessageSquareShare,
+  User,
+  ArrowLeft,
+} from 'lucide-react';
 import { downloadPitchDeckPdf } from '../utils/pdfExport';
 import { YegLogo } from './YegLogo';
 
@@ -28,56 +33,112 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         border-b border-neutral-800/80
         opacity-0
         pointer-events-none
-        will-change-transform, opacity, backdrop-filter
+        will-change-transform, opacity
       "
     >
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-        {/* Brand */}
+
+        {/* =====================================================
+            BRAND / LOGO
+            Ini adalah TARGET morph dari logo besar di HERO
+        ====================================================== */}
         <button
           onClick={onNavigateToHome}
-          className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left shrink-0"
+          className="
+            flex items-center gap-2.5 sm:gap-3
+            group cursor-pointer text-left shrink-0
+          "
           title="YEG Production - Kembali ke Beranda"
         >
+          {/* TARGET LOGO MORPH */}
           <div
             id="floating-logo"
-            className="will-change-transform"
+            className="
+              relative flex items-center justify-center
+              w-[46px] h-[46px]
+              shrink-0
+              will-change-transform
+            "
           >
-            <YegLogo size={46} animated={true} />
+            <YegLogo
+              size={46}
+              animated={true}
+            />
           </div>
 
+          {/* Brand text */}
           <div className="flex flex-col">
-            <span className="text-base sm:text-xl font-black tracking-tight text-white group-hover:text-[#34d399] transition-colors font-heading leading-tight">
+            <span
+              className="
+                text-base sm:text-xl
+                font-black tracking-tight
+                text-white
+                group-hover:text-[#34d399]
+                transition-colors
+                font-heading
+                leading-tight
+              "
+            >
               YEG PRODUCTION
             </span>
 
-            <span className="text-[10px] sm:text-xs text-neutral-400 font-mono tracking-wider">
+            <span
+              className="
+                text-[10px] sm:text-xs
+                text-neutral-400
+                font-mono tracking-wider
+              "
+            >
               Creative Production
             </span>
           </div>
         </button>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
+        {/* =====================================================
+            ACTIONS
+        ====================================================== */}
+        <div
+          id="floating-actions"
+          className="
+            flex items-center
+            gap-1.5 sm:gap-2.5
+            will-change-transform, opacity
+          "
+        >
+
+          {/* PROFILE / BACK */}
           {currentView === 'home' ? (
             <button
+              id="floating-profile-cta"
               onClick={onNavigateToCv}
               title="Buka 1 Halaman Profil & CV Lengkap"
               className="
                 inline-flex items-center justify-center gap-1.5
                 p-2 sm:px-3.5 sm:py-2
-                text-xs sm:text-sm font-bold text-white
-                bg-gradient-to-r from-[#0369a1] to-[#0284c7]
-                hover:from-[#0284c7] hover:to-[#38bdf8]
+                text-xs sm:text-sm
+                font-bold text-white
+                bg-gradient-to-r
+                from-[#0369a1]
+                to-[#0284c7]
+                hover:from-[#0284c7]
+                hover:to-[#38bdf8]
                 border border-[#38bdf8]/40
-                rounded-xl transition-all
-                shadow-md shadow-[#0284c7]/20
-                hover:scale-105 active:scale-95
-                cursor-pointer whitespace-nowrap
+                rounded-xl
+                transition-all
+                shadow-md
+                shadow-[#0284c7]/20
+                hover:scale-105
+                active:scale-95
+                cursor-pointer
+                whitespace-nowrap
               "
               aria-label="Profil Founder"
             >
               <User className="w-4 h-4 text-white" />
-              <span className="hidden sm:inline">Profil Founder</span>
+
+              <span className="hidden sm:inline">
+                Profil Founder
+              </span>
             </button>
           ) : (
             <button
@@ -86,66 +147,93 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               className="
                 inline-flex items-center justify-center gap-1.5
                 p-2 sm:px-3.5 sm:py-2
-                text-xs sm:text-sm font-bold text-white
-                bg-neutral-900 hover:bg-neutral-800
+                text-xs sm:text-sm
+                font-bold text-white
+                bg-neutral-900
+                hover:bg-neutral-800
                 border border-neutral-700
-                rounded-xl transition-all
+                rounded-xl
+                transition-all
                 hover:border-[#34d399]
-                cursor-pointer active:scale-95
+                cursor-pointer
+                active:scale-95
                 whitespace-nowrap
               "
               aria-label="Presentasi Bisnis"
             >
               <ArrowLeft className="w-4 h-4 text-[#34d399]" />
+
               <span className="hidden sm:inline">
                 Presentasi Bisnis
               </span>
             </button>
           )}
 
+          {/* DOWNLOAD */}
           <button
+            id="floating-download-cta"
             onClick={downloadPitchDeckPdf}
             title="Unduh Pitch Deck"
             className="
               inline-flex items-center justify-center gap-1.5
               p-2 sm:px-3 sm:py-2
-              text-xs sm:text-sm font-semibold
-              text-neutral-200 hover:text-white
-              bg-neutral-900/90 hover:bg-neutral-800
+              text-xs sm:text-sm
+              font-semibold
+              text-neutral-200
+              hover:text-white
+              bg-neutral-900/90
+              hover:bg-neutral-800
               border border-neutral-700/80
               hover:border-[#0a7463]
-              rounded-xl transition-all
-              shadow-sm cursor-pointer active:scale-95
+              rounded-xl
+              transition-all
+              shadow-sm
+              cursor-pointer
+              active:scale-95
             "
             aria-label="Unduh Pitch Deck 16:9"
           >
             <Download className="w-4 h-4 text-[#34d399]" />
+
             <span className="hidden md:inline">
               Unduh PPT 16:9
             </span>
           </button>
 
+          {/* =================================================
+              HUBUNGI FOUNDER
+              Ini TARGET morph dari CTA di HERO
+          ================================================== */}
           <button
+            id="floating-founder-cta"
             onClick={onOpenCandidateForm}
             title="Hubungi Founder"
             className="
               inline-flex items-center justify-center gap-1.5
               p-2 sm:px-3.5 sm:py-2
-              text-xs sm:text-sm font-bold text-white
-              bg-[#0a7463] hover:bg-[#086354]
+              text-xs sm:text-sm
+              font-bold text-white
+              bg-[#0a7463]
+              hover:bg-[#086354]
               border border-[#0a7463]
-              rounded-xl transition-all
+              rounded-xl
+              transition-all
               shadow-sm
               hover:shadow-[0_0_15px_rgba(10,116,99,0.4)]
-              whitespace-nowrap cursor-pointer active:scale-95
+              whitespace-nowrap
+              cursor-pointer
+              active:scale-95
+              will-change-transform, opacity
             "
             aria-label="Hubungi Founder"
           >
             <MessageSquareShare className="w-4 h-4 text-white" />
+
             <span className="hidden sm:inline">
               Hubungi Founder
             </span>
           </button>
+
         </div>
       </div>
     </header>
