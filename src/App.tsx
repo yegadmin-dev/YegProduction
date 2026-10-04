@@ -10,6 +10,7 @@ import { PartnerQuizMatcher } from './components/PartnerQuizMatcher';
 import { SectionDivider } from './components/SectionDivider';
 import { YegLogo } from './components/YegLogo';
 import { downloadPitchDeckPdf } from './utils/pdfExport';
+import { founderPhoto } from './assets/images/m_ridhwan_mubarok_founder.jpg';
 import {
   Sparkles,
   Download,
@@ -1762,8 +1763,8 @@ Terima kasih.`;
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
                   <img
-                    src="/src/assets/images/m_ridhwan_mubarok_founder.jpg"
-                    alt="Kak Ridhwan - Founder YEG"
+                    src= {founderPhoto}
+                    alt="Kak Ridhwan (M. Ridhwan Mubarok) - Founder YEG Production"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top"
                   />
