@@ -61,8 +61,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-    // Responsive GSAP animations using matchMedia
-(smooth on desktop, lightweight on mobile)
+    // Responsive GSAP animations using matchMedia (smooth on desktop, lightweight on mobile)
   useLayoutEffect(() => {
 if (currentView !== 'home') return;
 
