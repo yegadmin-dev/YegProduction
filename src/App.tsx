@@ -915,36 +915,8 @@ Terima kasih.`;
                 </div>
               </div>
 
-              {/* Studio Visual Asset & Key Highlights */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch pt-2 sm:pt-4">
-                <div
-                  ref={heroVisualRef}
-                  className="lg:col-span-8 relative rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl aspect-[16/10] sm:aspect-[16/9] max-h-[380px] sm:max-h-[440px]"
-                >
-                  <img
-                    src="/src/assets/images/yeg_creative_studio_1791037426847.jpg"
-                    alt="YEG Production Creative Studio"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-white">
-                    <div>
-                      <span className="text-[10px] sm:text-xs font-mono text-[#34d399] font-bold uppercase tracking-wider block">
-                        CREATIVE PRODUCTION OPERATIONS
-                      </span>
-                      <h3 className="text-base sm:text-2xl font-bold font-heading mt-0.5">
-                        Menghubungkan Ide Visual dengan Produksi Fisik
-                      </h3>
-                    </div>
-                    <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 text-[11px] sm:text-xs text-neutral-300 self-start sm:self-auto font-medium">
-                      Kombinasi Desain & Vendor
-                    </span>
-                  </div>
-                </div>
-
                 {/* 4 Interactive Snapshot Metrics: Compact 2x2 grid on mobile */}
-                <div ref={heroMetricsRef} className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3.5">
+                <div ref={heroMetricsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2 sm:pt-4">
                   {[
                     {
                       num: '2025',
