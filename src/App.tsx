@@ -487,30 +487,91 @@ Terima kasih.`;
     >
       <style>{`
         /* ============================================================
-           YEG LIGHT THEME — HIGH CONTRAST OVERRIDES
-           Keep brand accents, images and GSAP effects intact.
+           YEG THEME SYSTEM — LIGHT MODE COMPLETE CONTRAST FIX
+           Dark mode keeps the original visual language.
+           Light mode converts ALL dark content blocks to soft bright
+           surfaces while preserving brand/accent colors and imagery.
         ============================================================ */
-        [data-yeg-theme="light"] main .bg-\\[\\#080d0c\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#101715\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\],
+
+        /* ---------- LIGHT PAGE SURFACES ---------- */
+        [data-yeg-theme="light"] main {
+          color: #0f172a;
+        }
+
+        /* ---------- DARK BLOCKS -> SOFT BRIGHT BLOCKS ---------- */
+        [data-yeg-theme="light"] main .bg-\[\#060a09\],
+        [data-yeg-theme="light"] main .bg-\[\#080d0c\],
+        [data-yeg-theme="light"] main .bg-\[\#0f1514\],
+        [data-yeg-theme="light"] main .bg-\[\#101715\],
+        [data-yeg-theme="light"] main .bg-\[\#111716\],
+        [data-yeg-theme="light"] main .bg-\[\#152e27\],
+        [data-yeg-theme="light"] main .bg-\[\#0f241e\],
+        [data-yeg-theme="light"] main .bg-\[\#141c1a\],
+        [data-yeg-theme="light"] main .bg-\[\#182622\],
+        [data-yeg-theme="light"] main .bg-\[\#0d1b2a\],
+        [data-yeg-theme="light"] main .bg-\[\#102438\],
+        [data-yeg-theme="light"] main .bg-\[\#0c1a24\],
         [data-yeg-theme="light"] main .bg-neutral-900,
         [data-yeg-theme="light"] main .bg-neutral-800 {
-          background-color: #ffffff !important;
+          background: #ffffff !important;
+          background-image: none !important;
+          color: #0f172a !important;
+          border-color: #dbe4ea !important;
+        }
+
+        /* Specific soft brand surfaces */
+        [data-yeg-theme="light"] main .bg-\[\#152e27\] {
+          background: #ecfdf5 !important;
+          color: #0f172a !important;
+          border-color: #a7f3d0 !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\[\#0f241e\] {
+          background: #ecfdf5 !important;
+          color: #0f172a !important;
+          border-color: #a7f3d0 !important;
+        }
+
+        /* Dark gradient cards -> pastel gradients */
+        [data-yeg-theme="light"] main .bg-gradient-to-r.from-\[\#0d1b2a\],
+        [data-yeg-theme="light"] main .bg-gradient-to-r.from-\[\#141c1a\],
+        [data-yeg-theme="light"] main .bg-gradient-to-br.from-\[\#0c1929\],
+        [data-yeg-theme="light"] main .bg-gradient-to-br.from-\[\#08111c\] {
+          background-image: linear-gradient(135deg, #f8fafc, #eff6ff, #f0fdfa) !important;
+          background-color: #f8fafc !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+
+        /* Catch dark gradient endpoints used by older sections */
+        [data-yeg-theme="light"] main [class*="from-[#141c1a]"],
+        [data-yeg-theme="light"] main [class*="from-[#0c1929]"],
+        [data-yeg-theme="light"] main [class*="from-[#0f241e]"],
+        [data-yeg-theme="light"] main [class*="from-[#0d1b2a"]],
+        [data-yeg-theme="light"] main [class*="from-[#0f1514"]],
+        [data-yeg-theme="light"] main [class*="from-[#101715"]],
+        [data-yeg-theme="light"] main [class*="from-[#111716"]] {
+          background-image: linear-gradient(135deg, #f8fafc, #f0fdfa) !important;
+          background-color: #f8fafc !important;
           color: #0f172a !important;
         }
 
+        /* ---------- BLACK TRANSLUCENT UI BLOCKS ---------- */
         [data-yeg-theme="light"] main .bg-black {
-          background-color: #f1f5f9 !important;
-        }
-
-        [data-yeg-theme="light"] main .text-white {
+          background-color: #f8fafc !important;
           color: #0f172a !important;
         }
 
+        [data-yeg-theme="light"] main .bg-black\/40,
+        [data-yeg-theme="light"] main .bg-black\/50,
+        [data-yeg-theme="light"] main .bg-black\/60,
+        [data-yeg-theme="light"] main .bg-neutral-900\/90 {
+          background-color: #f1f5f9 !important;
+          color: #0f172a !important;
+        }
+
+        /* ---------- TEXT CONTRAST ---------- */
+        [data-yeg-theme="light"] main .text-white,
         [data-yeg-theme="light"] main .text-neutral-100 {
           color: #0f172a !important;
         }
@@ -531,123 +592,99 @@ Terima kasih.`;
           color: #64748b !important;
         }
 
-        [data-yeg-theme="light"] main .border-neutral-800,
-        [data-yeg-theme="light"] main .border-neutral-700,
-        [data-yeg-theme="light"] main .border-neutral-800\\/80,
-        [data-yeg-theme="light"] main .border-neutral-700\\/80 {
-          border-color: #cbd5e1 !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] {
-          background-color: #ecfdf5 !important;
-          color: #0f172a !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] {
-          background: linear-gradient(135deg, #f8fafc, #eff6ff, #f0fdfa) !important;
-          border-color: #bfdbfe !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-gradient-to-r.from-\\[\\#0d1b2a\\] {
-          background: linear-gradient(90deg, #f8fafc, #eff6ff, #f0fdfa) !important;
-        }
-
-        [data-yeg-theme="light"] main .hover\\:text-white:hover {
-          color: #0a7463 !important;
-        }
-
-        [data-yeg-theme="light"] main .hover\\:bg-neutral-800:hover,
-        [data-yeg-theme="light"] main .hover\\:bg-neutral-900:hover {
-          background-color: #f1f5f9 !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-black\\/60 {
-          background-color: rgb(15 23 42 / 0.72) !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-black\\/40 {
-          background-color: rgb(15 23 42 / 0.42) !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-white\\/5 {
-          background-color: rgb(15 23 42 / 0.04) !important;
-        }
-
-        [data-yeg-theme="light"] main .border-white\\/10 {
-          border-color: rgb(15 23 42 / 0.10) !important;
-        }
-
-        [data-yeg-theme="light"] main .text-\\[\\#34d399\\] {
+        /* Keep brand colors readable on bright surfaces */
+        [data-yeg-theme="light"] main .text-\[\#34d399\] {
           color: #087f5b !important;
         }
 
-        [data-yeg-theme="light"] main .text-\\[\\#38bdf8\\] {
+        [data-yeg-theme="light"] main .text-\[\#38bdf8\] {
           color: #0369a1 !important;
         }
 
-        [data-yeg-theme="light"] main .text-\\[\\#fbbf24\\] {
+        [data-yeg-theme="light"] main .text-\[\#22d3ee\] {
+          color: #0e7490 !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\[\#4ade80\] {
+          color: #15803d !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\[\#818cf8\] {
+          color: #4338ca !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\[\#e879f9\] {
+          color: #a21caf !important;
+        }
+
+        [data-yeg-theme="light"] main .text-\[\#fbbf24\] {
           color: #b45309 !important;
         }
 
-
-        /* SOFT PASTEL BLOCKS — LIGHT MODE */
-        [data-yeg-theme="light"] main .bg-neutral-900,
-        [data-yeg-theme="light"] main .bg-\\[\\#101715\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\] {
-          background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
-          color: #0f172a !important;
-          border-color: #dbe4ee !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] {
-          background: linear-gradient(135deg, #ecfdf5, #dff7ee) !important;
-          color: #0f172a !important;
-          border-color: #a7f3d0 !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] {
-          background: linear-gradient(135deg, #eff6ff, #e0f2fe) !important;
-          color: #0f172a !important;
-          border-color: #bfdbfe !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-\\[\\#0f241e\\],
-        [data-yeg-theme="light"] main .bg-\\[\\#07100e\\] {
-          background: linear-gradient(135deg, #f0fdf4, #ecfdf5) !important;
-          color: #0f172a !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-black\\/40 {
-          background: linear-gradient(135deg, #fff7ed, #fffbeb) !important;
-          color: #451a03 !important;
-          border-color: #fed7aa !important;
-        }
-
-        [data-yeg-theme="light"] main .bg-white\\/5 {
-          background: rgba(15, 23, 42, 0.035) !important;
-          color: #0f172a !important;
-        }
-
+        /* ---------- BORDERS ---------- */
         [data-yeg-theme="light"] main .border-neutral-800,
         [data-yeg-theme="light"] main .border-neutral-700,
-        [data-yeg-theme="light"] main .border-neutral-800\\/80,
-        [data-yeg-theme="light"] main .border-neutral-700\\/80 {
-          border-color: #d5dee8 !important;
+        [data-yeg-theme="light"] main .border-neutral-800\/80,
+        [data-yeg-theme="light"] main .border-neutral-700\/80,
+        [data-yeg-theme="light"] main .border-white\/10 {
+          border-color: #cbd5e1 !important;
         }
 
-        /* Ensure text inside pastel blocks stays readable */
-        [data-yeg-theme="light"] main .bg-neutral-900 .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#101715\\] .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\] .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\] .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#102438\\] .text-neutral-300,
-        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] .text-neutral-300 {
-          color: #334155 !important;
+        /* ---------- SOFT WHITE / GLASS ELEMENTS ---------- */
+        [data-yeg-theme="light"] main .bg-white\/5 {
+          background-color: rgb(15 23 42 / 0.035) !important;
+        }
+
+        /* ---------- HOVER STATES ---------- */
+        [data-yeg-theme="light"] main .hover\:text-white:hover {
+          color: #0a7463 !important;
+        }
+
+        [data-yeg-theme="light"] main .hover\:bg-neutral-800:hover,
+        [data-yeg-theme="light"] main .hover\:bg-neutral-900:hover {
+          background-color: #e2e8f0 !important;
+          color: #0f172a !important;
+        }
+
+        /* ---------- KEEP IMAGE OVERLAYS DARK ---------- */
+        [data-yeg-theme="light"] main img + .bg-gradient-to-t {
+          color: white !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-black\/60.backdrop-blur-md {
+          background-color: rgb(15 23 42 / 0.72) !important;
+          color: white !important;
+        }
+
+        /* ---------- LIGHT THEME QUIZ / COMPONENT SAFETY NET ---------- */
+        /* Any common dark component surface is converted to white/soft slate. */
+        [data-yeg-theme="light"] main [class*="bg-[#060a09]"],
+        [data-yeg-theme="light"] main [class*="bg-[#080d0c]"],
+        [data-yeg-theme="light"] main [class*="bg-[#0b"],
+        [data-yeg-theme="light"] main [class*="bg-[#0c"],
+        [data-yeg-theme="light"] main [class*="bg-[#0d"],
+        [data-yeg-theme="light"] main [class*="bg-[#0e"],
+        [data-yeg-theme="light"] main [class*="bg-[#0f"],
+        [data-yeg-theme="light"] main [class*="bg-[#10"],
+        [data-yeg-theme="light"] main [class*="bg-[#11"],
+        [data-yeg-theme="light"] main [class*="bg-[#12"],
+        [data-yeg-theme="light"] main [class*="bg-[#13"],
+        [data-yeg-theme="light"] main [class*="bg-[#14"],
+        [data-yeg-theme="light"] main [class*="bg-[#15"],
+        [data-yeg-theme="light"] main [class*="bg-[#16"],
+        [data-yeg-theme="light"] main [class*="bg-[#17"],
+        [data-yeg-theme="light"] main [class*="bg-[#18"] {
+          background: #ffffff !important;
+          background-image: none !important;
+          color: #0f172a !important;
+          border-color: #dbe4ea !important;
+        }
+
+        /* Accent buttons remain colored */
+        [data-yeg-theme="light"] main .bg-\[\#0a7463\],
+        [data-yeg-theme="light"] main .bg-\[\#15803d\],
+        [data-yeg-theme="light"] main .bg-\[\#0284c7\] {
+          color: white !important;
         }
       `}</style>
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
@@ -779,7 +816,7 @@ Terima kasih.`;
                 >
                   <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} theme={theme} />
+                    <YegLogo size={360} animated={true} />
                     <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
@@ -1824,7 +1861,7 @@ Terima kasih.`;
             <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-b from-[#0f241e] to-[#07100e] border border-[#0a7463] space-y-5 shadow-2xl">
               <div className="flex justify-center">
                 {/* Enlarged logo as requested */}
-                <YegLogo size={88} animated={true} theme={theme} />
+                <YegLogo size={88} animated={true} />
               </div>
 
               <div className="space-y-1">
@@ -1889,7 +1926,7 @@ Terima kasih.`;
       <footer className="no-print border-t border-neutral-800 bg-[#060a09] py-8 sm:py-12 px-3.5 sm:px-6 md:px-8 text-neutral-400 text-xs sm:text-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <div className="space-y-1 text-center md:text-left flex flex-col sm:flex-row items-center gap-3">
-            <YegLogo size={44} animated={false} theme={theme} />
+            <YegLogo size={44} animated={false} />
             <div>
               <h4 className="text-sm sm:text-base font-bold text-white font-heading tracking-tight">
                 YEG PRODUCTION
