@@ -10,7 +10,7 @@ import { PartnerQuizMatcher } from './components/PartnerQuizMatcher';
 import { SectionDivider } from './components/SectionDivider';
 import { YegLogo } from './components/YegLogo';
 import { downloadPitchDeckPdf } from './utils/pdfExport';
-import { founderPhoto } from './assets/images/m_ridhwan_mubarok_founder.jpg';
+import founderPhoto from './assets/images/m_ridhwan_mubarok_founder.jpg';
 import {
   Sparkles,
   Download,
