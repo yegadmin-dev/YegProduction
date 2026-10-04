@@ -20,7 +20,7 @@ import {
   Download,
 } from 'lucide-react';
 import { downloadPitchDeckPdf } from '../utils/pdfExport';
-import founderPhoto from './assets/images/m_ridhwan_mubarok_founder.jpg';
+import founderPhoto from "../assets/images/m_ridhwan_mubarok_founder.jpg";
 
 interface FounderCVSectionProps {
   onBackToHome?: () => void;
