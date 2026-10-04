@@ -62,7 +62,72 @@ export default function App() {
     setCurrentView('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  
+    // Responsive GSAP animations using matchMedia
+(smooth on desktop, lightweight on mobile)
+  useEffect(() => {
+if (currentView !== 'home') return;
 
+const ctx = gsap.context(() => {
+const mm = gsap.matchMedia(); 
+
+// DESKTOP (min-width: 768px): Full ClipPath Reveal, Parallax & Stagger mm.add('(min-width: 768px)', () => {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+tl.fromTo(
+ heroBadgeRef.current,
+{ opacity: 0, y: -15 },
+{ opacity: 1, y: 0, duration: 0.5 }
+ ) 
+.fromTo( 
+heroLogoRef.current, 
+{ opacity: 0, scale: 0.85, rotation: -6 }, 
+{ opacity: 1, scale: 1, rotation: 0, duration: 0.6 }, 
+'-=0.2' 
+) 
+.fromTo(
+heroTitleRef.current, 
+{ opacity: 0, y: 25 }, 
+{ opacity: 1, y: 0, duration: 0.6 },
+'-=0.3'
+) 
+.fromTo( 
+heroSubtitleRef.current, 
+{ opacity: 0, y: 15 },
+{ opacity: 1, y: 0, duration: 0.5 }, 
+'-=0.3' 
+)
+ .fromTo( 
+heroTaglineRef.current, 
+{ opacity: 0, y: 12 }, 
+{ opacity: 1, y: 0, duration: 0.5 }, 
+'-=0.3' 
+) 
+.fromTo( 
+heroDescRef.current, 
+{ opacity: 0, y: 15 }, 
+{ opacity: 1, y: 0, duration: 0.5 }, 
+'-=0.2' 
+) 
+.fromTo( 
+heroCtasRef.current, 
+{ opacity: 0, scale: 0.96, y: 15 },
+{ opacity: 1, scale: 1, y: 0, duration: 0.5 }, 
+'-=0.2' 
+) 
+.fromTo( 
+heroVisualRef.current, 
+{ opacity: 0, y: 30 }, 
+{ opacity: 1, y: 0, duration: 0.7 },
+ '-=0.3'
+) 
+.fromTo(
+heroMetricsRef.current, 
+{ opacity: 0, y: 20 }, 
+{ opacity: 1, y: 0, duration: 0.6 }, 
+'-=0.4' 
+); 
+  
  // ============================================================
 // YEG HERO → FLOATING NAV MORPH
 // Scroll-driven / scrub based.
