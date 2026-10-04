@@ -40,8 +40,6 @@ export default function App() {
   const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
   const [conceptTab, setConceptTab] = useState<'sekarang' | 'sebelumnya'>('sekarang');
   const [scrollSectionIndex, setScrollSectionIndex] = useState<number>(1);
-  const floatingHeader = document.getElementById('yeg-floating-header');
-
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBadgeRef = useRef<HTMLDivElement>(null);
   const heroLogoRef = useRef<HTMLDivElement>(null);
@@ -128,98 +126,131 @@ heroMetricsRef.current,
 '-=0.4' 
 ); 
   
- // ============================================================
-// YEG HERO → FLOATING NAV MORPH
-// Scroll-driven / scrub based.
-// ============================================================
+        // ============================================================
+        // YEG HERO → FLOATING NAV MORPH
+        // Scroll-driven / scrub based — PowerPoint Morph style.
+        // Desktop only: hero logo moves toward the real navbar logo,
+        // scales down, while the hero CTA transitions into the navbar.
+        // ============================================================
+        const header = document.querySelector('header') as HTMLElement | null;
 
-const floatingHeader = document.getElementById(
-  'yeg-floating-header'
-);
+        if (header && heroRef.current && heroLogoRef.current && heroCtasRef.current) {
+          const navbarLogo = header.querySelector('img') as HTMLElement | null;
+          // Make the existing HeaderNav behave as the floating navbar.
+          gsap.set(header, {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            opacity: 0,
+            y: -20,
+            pointerEvents: 'none',
+          });
 
-if (
-  floatingHeader &&
-  heroRef.current &&
-  heroLogoRef.current &&
-  heroCtasRef.current
-) {
-  const morphTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: heroRef.current,
-      start: 'top top',
-      end: '+=500',
-      scrub: 1,
-      invalidateOnRefresh: true,
-    },
-  });
+          const morphTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: heroRef.current,
+              start: 'top top',
+              end: '+=520',
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          });
 
-  // ----------------------------------------------------------
-  // 1. Floating header muncul
-  // ----------------------------------------------------------
+          morphTl.to(
+            header,
+            {
+              opacity: 1,
+              y: 0,
+              pointerEvents: 'auto',
+              duration: 0.28,
+              ease: 'none',
+            },
+            0
+          );
 
-  morphTl.to(
-    floatingHeader,
-    {
-      opacity: 1,
-      duration: 0.35,
-      ease: 'none',
-    },
-    0
-  );
+          // Hero logo → navbar logo.
+          if (navbarLogo) {
+            const from = heroLogoRef.current.getBoundingClientRect();
+            const to = navbarLogo.getBoundingClientRect();
 
-  // ----------------------------------------------------------
-  // 2. Logo besar hero mengecil + naik
-  // ----------------------------------------------------------
+            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+            const scale = Math.min(to.width / from.width, to.height / from.height);
 
-  morphTl.to(
-    heroLogoRef.current,
-    {
-      x: 0,
-      y: -260,
-      scale: 0.52,
-      duration: 1,
-      ease: 'power2.inOut',
-    },
-    0
-  );
+            morphTl.to(
+              heroLogoRef.current,
+              {
+                x: dx,
+                y: dy,
+                scale: Math.max(0.18, Math.min(scale, 0.5)),
+                duration: 1,
+                ease: 'power2.inOut',
+              },
+              0
+            );
+          } else {
+            morphTl.to(
+              heroLogoRef.current,
+              {
+                x: '35vw',
+                y: -260,
+                scale: 0.42,
+                duration: 1,
+                ease: 'power2.inOut',
+              },
+              0
+            );
+          }
 
-  // ----------------------------------------------------------
-  // 3. CTA hero naik + mengecil + menghilang
-  // ----------------------------------------------------------
+          // Fade the small BRANDMARK label during the morph.
+          const brandmark = heroLogoRef.current.querySelector('span');
+          if (brandmark) {
+            morphTl.to(
+              brandmark,
+              {
+                opacity: 0,
+                scale: 0.7,
+                duration: 0.35,
+                ease: 'none',
+              },
+              0.45
+            );
+          }
 
-  morphTl.to(
-    heroCtasRef.current,
-    {
-      y: -285,
-      scale: 0.72,
-      opacity: 0,
-      duration: 1,
-      ease: 'power2.inOut',
-    },
-    0
-  );
+          // Hero CTA travels upward and disappears as the navbar CTA arrives.
+          morphTl.to(
+            heroCtasRef.current,
+            {
+              y: -270,
+              scale: 0.72,
+              opacity: 0,
+              duration: 1,
+              ease: 'power2.inOut',
+            },
+            0
+          );
 
-  // ----------------------------------------------------------
-  // 4. Konten hero sedikit naik
-  // ----------------------------------------------------------
 
-  morphTl.to(
-    [
-      heroTitleRef.current,
-      heroSubtitleRef.current,
-      heroTaglineRef.current,
-      heroDescRef.current,
-    ],
-    {
-      y: -35,
-      opacity: 0.88,
-      duration: 1,
-      stagger: 0.03,
-      ease: 'power2.out',
-    },
-    0
-  );
-}
+          // Supporting hero copy gently moves away from the morph path.
+          morphTl.to(
+            [
+              heroTitleRef.current,
+              heroSubtitleRef.current,
+              heroTaglineRef.current,
+              heroDescRef.current,
+            ],
+            {
+              y: -30,
+              opacity: 0.9,
+              duration: 1,
+              stagger: 0.025,
+              ease: 'power2.out',
+            },
+            0
+          );
+        }
 
         // Hero visual subtle parallax
         if (heroVisualRef.current) {
@@ -459,9 +490,9 @@ Terima kasih.`;
             {/* Subtle Ambient Glow */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
 
-            <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 relative z-10">
+            <div className="max-w-6xl mx-auto relative z-10">
               {/* Top Badges */}
-              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2">
+              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2 mb-6 sm:mb-8">
                 <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
                   CREATIVE PRODUCTION PLATFORM
@@ -472,89 +503,98 @@ Terima kasih.`;
                 </span>
               </div>
 
-              {/* ENLARGED LOGO above YEG text */}
-              <div ref={heroLogoRef} className="pt-1">
-                <div className="inline-flex flex-col items-start gap-1.5">
-                  <YegLogo size={92} animated={true} />
-                  <span className="text-[10px] sm:text-xs font-mono tracking-widest text-[#34d399] uppercase font-bold pl-1">
-                    YEG BRANDMARK
-                  </span>
+              {/* HERO CONTENT: text left + large logo right */}
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
+                <div className="space-y-6 sm:space-y-8">
+                  {/* Main Headline */}
+                  <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
+                    <h1
+                      ref={heroTitleRef}
+                      className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight font-heading leading-[1.08]"
+                    >
+                      YEG PRODUCTION
+                    </h1>
+
+                    <p
+                      ref={heroSubtitleRef}
+                      className="text-xl sm:text-3xl md:text-4xl font-bold text-[#34d399] font-heading"
+                    >
+                      Your Expression, Our Creation.
+                    </p>
+
+                    <div
+                      ref={heroTaglineRef}
+                      className="text-sm sm:text-xl md:text-2xl text-neutral-200 font-light flex items-center flex-wrap gap-1.5 pt-0.5"
+                    >
+                      <span className="font-bold text-white">Creative Production</span>
+                      <span className="text-neutral-500">—</span>
+                      <span className="text-neutral-300">Building from Ideas, Creating Value.</span>
+                    </div>
+
+                    <p
+                      ref={heroDescRef}
+                      className="text-xs sm:text-base text-neutral-300 max-w-2xl leading-relaxed pt-1"
+                    >
+                      Mengubah gagasan dan kreativitas menjadi produk bernilai guna serta bernilai ekonomi nyata. Menghubungkan alur komprehensif mulai dari <strong>Ide → Desain Visual → Produksi Vendor → Produk Jadi</strong>.
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div ref={heroCtasRef} className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2 origin-left">
+                    <button
+                      onClick={() => scrollToSection('section-tentang')}
+                      className="px-4 py-2.5 sm:px-6 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#0a7463] hover:bg-[#086354] rounded-xl transition-all shadow-[0_4px_20px_rgba(10,116,99,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
+                      title="Pelajari Profil & Model Bisnis"
+                    >
+                      <span>Pelajari Model Bisnis</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={navigateToCv}
+                      className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-semibold text-white bg-gradient-to-r from-[#0369a1] to-[#0284c7] hover:from-[#0284c7] hover:to-[#38bdf8] border border-[#38bdf8]/40 rounded-xl transition-all hover:border-[#38bdf8] flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
+                      title="Buka 1 Halaman Profil & CV Lengkap Kak Ridhwan"
+                      aria-label="Profil Kak Ridhwan & CV"
+                    >
+                      <User className="w-4 h-4 text-white" />
+                      <span className="hidden sm:inline">Profil Founder & CV</span>
+                    </button>
+
+                    <button
+                      onClick={handleOpenDirectWhatsApp}
+                      className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#15803d] hover:bg-[#166534] border border-[#22c55e]/50 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
+                      title="Chat WA Kak Ridhwan (+62 896-7484-9505)"
+                      aria-label="Chat WA Kak Ridhwan"
+                    >
+                      <MessageSquareShare className="w-4 h-4" />
+                      <span className="hidden sm:inline">Chat WA Founder</span>
+                    </button>
+
+                    <button
+                      onClick={downloadPitchDeckPdf}
+                      className="p-2.5 sm:px-4 sm:py-3.5 text-xs sm:text-base font-semibold text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer active:scale-95"
+                      title="Unduh Format PPT 16:9 (PDF)"
+                      aria-label="Unduh Format PPT 16:9"
+                    >
+                      <Download className="w-4 h-4 text-[#34d399]" />
+                      <span className="hidden sm:inline">Unduh PPT 16:9</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Main Headline */}
-              <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
-                <h1
-                  ref={heroTitleRef}
-                  className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight font-heading leading-[1.08]"
-                >
-                  YEG PRODUCTION
-                </h1>
-
-                <p
-                  ref={heroSubtitleRef}
-                  className="text-xl sm:text-3xl md:text-4xl font-bold text-[#34d399] font-heading"
-                >
-                  Your Expression, Our Creation.
-                </p>
-
+                {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
-                  ref={heroTaglineRef}
-                  className="text-sm sm:text-xl md:text-2xl text-neutral-200 font-light flex items-center flex-wrap gap-1.5 pt-0.5"
+                  ref={heroLogoRef}
+                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
                 >
-                  <span className="font-bold text-white">Creative Production</span>
-                  <span className="text-neutral-500">—</span>
-                  <span className="text-neutral-300">Building from Ideas, Creating Value.</span>
+                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
+                  <div className="relative flex flex-col items-center justify-center">
+                    <YegLogo size={360} animated={true} />
+                    <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
+                      YEG BRANDMARK
+                    </span>
+                  </div>
                 </div>
-
-                <p
-                  ref={heroDescRef}
-                  className="text-xs sm:text-base text-neutral-300 max-w-2xl leading-relaxed pt-1"
-                >
-                  Mengubah gagasan dan kreativitas menjadi produk bernilai guna serta bernilai ekonomi nyata. Menghubungkan alur komprehensif mulai dari <strong>Ide → Desain Visual → Produksi Vendor → Produk Jadi</strong>.
-                </p>
-              </div>
-
-              {/* Action Buttons: Responsive for mobile (icons/short) & desktop */}
-              <div ref={heroCtasRef} className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
-                <button
-                  onClick={() => scrollToSection('section-tentang')}
-                  className="px-4 py-2.5 sm:px-6 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#0a7463] hover:bg-[#086354] rounded-xl transition-all shadow-[0_4px_20px_rgba(10,116,99,0.35)] hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
-                  title="Pelajari Profil & Model Bisnis"
-                >
-                  <span>Pelajari Model Bisnis</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <button
-                  onClick={navigateToCv}
-                  className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-semibold text-white bg-gradient-to-r from-[#0369a1] to-[#0284c7] hover:from-[#0284c7] hover:to-[#38bdf8] border border-[#38bdf8]/40 rounded-xl transition-all hover:border-[#38bdf8] flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
-                  title="Buka 1 Halaman Profil & CV Lengkap Kak Ridhwan"
-                  aria-label="Profil Kak Ridhwan & CV"
-                >
-                  <User className="w-4 h-4 text-white" />
-                  <span className="hidden sm:inline">Profil Founder & CV</span>
-                </button>
-
-                <button
-                  onClick={handleOpenDirectWhatsApp}
-                  className="p-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-[#15803d] hover:bg-[#166534] border border-[#22c55e]/50 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
-                  title="Chat WA Kak Ridhwan (+62 896-7484-9505)"
-                  aria-label="Chat WA Kak Ridhwan"
-                >
-                  <MessageSquareShare className="w-4 h-4" />
-                  <span className="hidden sm:inline">Chat WA Founder</span>
-                </button>
-
-                <button
-                  onClick={downloadPitchDeckPdf}
-                  className="p-2.5 sm:px-4 sm:py-3.5 text-xs sm:text-base font-semibold text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-xl transition-colors flex items-center gap-2 cursor-pointer active:scale-95"
-                  title="Unduh Format PPT 16:9 (PDF)"
-                  aria-label="Unduh Format PPT 16:9"
-                >
-                  <Download className="w-4 h-4 text-[#34d399]" />
-                  <span className="hidden sm:inline">Unduh PPT 16:9</span>
-                </button>
               </div>
 
               {/* Studio Visual Asset & Key Highlights */}
