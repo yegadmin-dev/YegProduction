@@ -680,6 +680,97 @@ Terima kasih.`;
           border-color: #dbe4ea !important;
         }
 
+        /* ============================================================
+           FINAL LIGHT MODE — FORCE EVERY DARK CARD/BLOCK TO A BRIGHT
+           SOFT SURFACE. This catches opacity classes and component
+           blocks whose exact Tailwind class differs between builds.
+        ============================================================ */
+
+        /* Neutral / black cards */
+        [data-yeg-theme="light"] main [class*="bg-neutral-900"],
+        [data-yeg-theme="light"] main [class*="bg-neutral-800"],
+        [data-yeg-theme="light"] main [class*="bg-neutral-700"],
+        [data-yeg-theme="light"] main [class*="bg-black"] {
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          background-image: none !important;
+          color: #0f172a !important;
+          border-color: #dbe4ea !important;
+          box-shadow: 0 8px 24px rgb(15 23 42 / 0.06) !important;
+        }
+
+        /* Exact card used by the applicant criteria block. */
+        [data-yeg-theme="light"] main [class*="bg-neutral-900/90"] {
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+
+        /* Nested selectable rows become warm/soft instead of charcoal. */
+        [data-yeg-theme="light"] main [class*="bg-black/40"],
+        [data-yeg-theme="light"] main [class*="bg-black/50"] {
+          background: #fffbeb !important;
+          background-color: #fffbeb !important;
+          color: #1e293b !important;
+          border-color: #fde68a !important;
+        }
+
+        /* Dark arbitrary-color cards, including quiz / matcher blocks */
+        [data-yeg-theme="light"] main [class*="bg-[#0"],
+        [data-yeg-theme="light"] main [class*="bg-[#1"] {
+          background-color: #f8fafc !important;
+          background-image: none !important;
+          color: #0f172a !important;
+          border-color: #dbe4ea !important;
+        }
+
+        /* Dark gradient cards -> clearly separated pastel surfaces */
+        [data-yeg-theme="light"] main [class*="from-[#0"],
+        [data-yeg-theme="light"] main [class*="from-[#1"],
+        [data-yeg-theme="light"] main [class*="to-[#0"],
+        [data-yeg-theme="light"] main [class*="to-[#1"] {
+          background-image: linear-gradient(135deg, #ffffff 0%, #f0fdfa 52%, #eff6ff 100%) !important;
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+
+        /* Every text token used inside those converted cards must stay dark. */
+        [data-yeg-theme="light"] main [class*="bg-neutral-900"] .text-white,
+        [data-yeg-theme="light"] main [class*="bg-neutral-900"] [class*="text-neutral-"],
+        [data-yeg-theme="light"] main [class*="bg-neutral-800"] .text-white,
+        [data-yeg-theme="light"] main [class*="bg-neutral-800"] [class*="text-neutral-"],
+        [data-yeg-theme="light"] main [class*="bg-black"] .text-white,
+        [data-yeg-theme="light"] main [class*="bg-black"] [class*="text-neutral-"],
+        [data-yeg-theme="light"] main [class*="bg-[#0"] .text-white,
+        [data-yeg-theme="light"] main [class*="bg-[#0"] [class*="text-neutral-"],
+        [data-yeg-theme="light"] main [class*="from-[#0"] .text-white,
+        [data-yeg-theme="light"] main [class*="from-[#0"] [class*="text-neutral-"] {
+          color: #0f172a !important;
+        }
+
+        /* Self-assessment / quiz: soft mint container + white inner cards. */
+        [data-yeg-theme="light"] main [class*="self-assessment"],
+        [data-yeg-theme="light"] main [class*="assessment"],
+        [data-yeg-theme="light"] main [class*="matcher"] {
+          color: #0f172a !important;
+        }
+
+        /* Inputs / selectable quiz items should be bright, not charcoal. */
+        [data-yeg-theme="light"] main input,
+        [data-yeg-theme="light"] main textarea,
+        [data-yeg-theme="light"] main select,
+        [data-yeg-theme="light"] main label {
+          color: #0f172a;
+        }
+
+        /* Restore deliberately dark image overlays only. */
+        [data-yeg-theme="light"] main img + .bg-gradient-to-t,
+        [data-yeg-theme="light"] main .bg-black\/60.backdrop-blur-md {
+          color: white !important;
+        }
+
         /* Accent buttons remain colored */
         [data-yeg-theme="light"] main .bg-\[\#0a7463\],
         [data-yeg-theme="light"] main .bg-\[\#15803d\],
@@ -816,7 +907,7 @@ Terima kasih.`;
                 >
                   <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} />
+                    <YegLogo size={360} animated={true} theme={theme} />
                     <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
@@ -1861,7 +1952,7 @@ Terima kasih.`;
             <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-b from-[#0f241e] to-[#07100e] border border-[#0a7463] space-y-5 shadow-2xl">
               <div className="flex justify-center">
                 {/* Enlarged logo as requested */}
-                <YegLogo size={88} animated={true} />
+                <YegLogo size={88} animated={true} theme={theme} />
               </div>
 
               <div className="space-y-1">
@@ -1926,7 +2017,7 @@ Terima kasih.`;
       <footer className="no-print border-t border-neutral-800 bg-[#060a09] py-8 sm:py-12 px-3.5 sm:px-6 md:px-8 text-neutral-400 text-xs sm:text-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <div className="space-y-1 text-center md:text-left flex flex-col sm:flex-row items-center gap-3">
-            <YegLogo size={44} animated={false} />
+            <YegLogo size={44} animated={false} theme={theme} />
             <div>
               <h4 className="text-sm sm:text-base font-bold text-white font-heading tracking-tight">
                 YEG PRODUCTION
