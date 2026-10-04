@@ -63,70 +63,98 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Responsive GSAP animations using matchMedia (smooth on desktop, lightweight on mobile)
-  useEffect(() => {
-    if (currentView !== 'home') return;
+ // ============================================================
+// YEG HERO → FLOATING NAV MORPH
+// Scroll-driven / scrub based.
+// ============================================================
 
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+const floatingHeader = document.getElementById(
+  'yeg-floating-header'
+);
 
-      // DESKTOP (min-width: 768px): Full ClipPath Reveal, Parallax & Stagger
-      mm.add('(min-width: 768px)', () => {
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+if (
+  floatingHeader &&
+  heroRef.current &&
+  heroLogoRef.current &&
+  heroCtasRef.current
+) {
+  const morphTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: heroRef.current,
+      start: 'top top',
+      end: '+=500',
+      scrub: 1,
+      invalidateOnRefresh: true,
+    },
+  });
 
-        tl.fromTo(
-          heroBadgeRef.current,
-          { opacity: 0, y: -15 },
-          { opacity: 1, y: 0, duration: 0.5 }
-        )
-          .fromTo(
-            heroLogoRef.current,
-            { opacity: 0, scale: 0.85, rotation: -6 },
-            { opacity: 1, scale: 1, rotation: 0, duration: 0.6 },
-            '-=0.2'
-          )
-          .fromTo(
-            heroTitleRef.current,
-            { opacity: 0, y: 25 },
-            { opacity: 1, y: 0, duration: 0.6 },
-            '-=0.3'
-          )
-          .fromTo(
-            heroSubtitleRef.current,
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.5 },
-            '-=0.3'
-          )
-          .fromTo(
-            heroTaglineRef.current,
-            { opacity: 0, y: 12 },
-            { opacity: 1, y: 0, duration: 0.5 },
-            '-=0.3'
-          )
-          .fromTo(
-            heroDescRef.current,
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.5 },
-            '-=0.2'
-          )
-          .fromTo(
-            heroCtasRef.current,
-            { opacity: 0, scale: 0.96, y: 15 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.5 },
-            '-=0.2'
-          )
-          .fromTo(
-            heroVisualRef.current,
-            { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 0.7 },
-            '-=0.3'
-          )
-          .fromTo(
-            heroMetricsRef.current,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.6 },
-            '-=0.4'
-          );
+  // ----------------------------------------------------------
+  // 1. Floating header muncul
+  // ----------------------------------------------------------
+
+  morphTl.to(
+    floatingHeader,
+    {
+      opacity: 1,
+      duration: 0.35,
+      ease: 'none',
+    },
+    0
+  );
+
+  // ----------------------------------------------------------
+  // 2. Logo besar hero mengecil + naik
+  // ----------------------------------------------------------
+
+  morphTl.to(
+    heroLogoRef.current,
+    {
+      x: 0,
+      y: -260,
+      scale: 0.52,
+      duration: 1,
+      ease: 'power2.inOut',
+    },
+    0
+  );
+
+  // ----------------------------------------------------------
+  // 3. CTA hero naik + mengecil + menghilang
+  // ----------------------------------------------------------
+
+  morphTl.to(
+    heroCtasRef.current,
+    {
+      y: -285,
+      scale: 0.72,
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+    },
+    0
+  );
+
+  // ----------------------------------------------------------
+  // 4. Konten hero sedikit naik
+  // ----------------------------------------------------------
+
+  morphTl.to(
+    [
+      heroTitleRef.current,
+      heroSubtitleRef.current,
+      heroTaglineRef.current,
+      heroDescRef.current,
+    ],
+    {
+      y: -35,
+      opacity: 0.88,
+      duration: 1,
+      stagger: 0.03,
+      ease: 'power2.out',
+    },
+    0
+  );
+}
 
         // Hero visual subtle parallax
         if (heroVisualRef.current) {
