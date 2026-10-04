@@ -20,6 +20,7 @@ import {
   Download,
 } from 'lucide-react';
 import { downloadPitchDeckPdf } from '../utils/pdfExport';
+import founderPhoto from './assets/images/m_ridhwan_mubarok_founder.jpg';
 
 interface FounderCVSectionProps {
   onBackToHome?: () => void;
@@ -90,7 +91,7 @@ Terima kasih.`
             <div className="relative group">
               <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-2xl sm:rounded-3xl overflow-hidden border-4 border-[#34d399] shadow-2xl transition-transform duration-500 group-hover:scale-105">
                 <img
-                  src="/src/assets/images/m_ridhwan_mubarok_founder.jpg"
+                  src={founderPhoto}
                   alt="Kak Ridhwan (M. Ridhwan Mubarok) - Founder YEG Production"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover object-top"
