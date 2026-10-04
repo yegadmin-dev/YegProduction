@@ -590,6 +590,65 @@ Terima kasih.`;
         [data-yeg-theme="light"] main .text-\\[\\#fbbf24\\] {
           color: #b45309 !important;
         }
+
+
+        /* SOFT PASTEL BLOCKS — LIGHT MODE */
+        [data-yeg-theme="light"] main .bg-neutral-900,
+        [data-yeg-theme="light"] main .bg-\\[\\#101715\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\] {
+          background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+          color: #0f172a !important;
+          border-color: #dbe4ee !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] {
+          background: linear-gradient(135deg, #ecfdf5, #dff7ee) !important;
+          color: #0f172a !important;
+          border-color: #a7f3d0 !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#102438\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] {
+          background: linear-gradient(135deg, #eff6ff, #e0f2fe) !important;
+          color: #0f172a !important;
+          border-color: #bfdbfe !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-\\[\\#0f241e\\],
+        [data-yeg-theme="light"] main .bg-\\[\\#07100e\\] {
+          background: linear-gradient(135deg, #f0fdf4, #ecfdf5) !important;
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-black\\/40 {
+          background: linear-gradient(135deg, #fff7ed, #fffbeb) !important;
+          color: #451a03 !important;
+          border-color: #fed7aa !important;
+        }
+
+        [data-yeg-theme="light"] main .bg-white\\/5 {
+          background: rgba(15, 23, 42, 0.035) !important;
+          color: #0f172a !important;
+        }
+
+        [data-yeg-theme="light"] main .border-neutral-800,
+        [data-yeg-theme="light"] main .border-neutral-700,
+        [data-yeg-theme="light"] main .border-neutral-800\\/80,
+        [data-yeg-theme="light"] main .border-neutral-700\\/80 {
+          border-color: #d5dee8 !important;
+        }
+
+        /* Ensure text inside pastel blocks stays readable */
+        [data-yeg-theme="light"] main .bg-neutral-900 .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#101715\\] .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#0f1514\\] .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#152e27\\] .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#0d1b2a\\] .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#102438\\] .text-neutral-300,
+        [data-yeg-theme="light"] main .bg-\\[\\#0c1a24\\] .text-neutral-300 {
+          color: #334155 !important;
+        }
       `}</style>
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
       <HeaderNav
@@ -720,7 +779,7 @@ Terima kasih.`;
                 >
                   <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} />
+                    <YegLogo size={360} animated={true} theme={theme} />
                     <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
@@ -1765,7 +1824,7 @@ Terima kasih.`;
             <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-b from-[#0f241e] to-[#07100e] border border-[#0a7463] space-y-5 shadow-2xl">
               <div className="flex justify-center">
                 {/* Enlarged logo as requested */}
-                <YegLogo size={88} animated={true} />
+                <YegLogo size={88} animated={true} theme={theme} />
               </div>
 
               <div className="space-y-1">
@@ -1830,7 +1889,7 @@ Terima kasih.`;
       <footer className="no-print border-t border-neutral-800 bg-[#060a09] py-8 sm:py-12 px-3.5 sm:px-6 md:px-8 text-neutral-400 text-xs sm:text-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <div className="space-y-1 text-center md:text-left flex flex-col sm:flex-row items-center gap-3">
-            <YegLogo size={44} animated={false} />
+            <YegLogo size={44} animated={false} theme={theme} />
             <div>
               <h4 className="text-sm sm:text-base font-bold text-white font-heading tracking-tight">
                 YEG PRODUCTION
