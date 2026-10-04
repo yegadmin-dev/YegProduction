@@ -5297,6 +5297,4 @@ className="p-2 sm:p-2.5 rounded-lg bg-black/40 border border-[#0a7463]/40
 flex items-center gap-2"
 >
 <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] shrink-0" />
-<span className="text-[11px] sm:text-xs font-medium">{item}</span>================== */}
-
-          
+<span className="text-[11px] sm:text-xs font-medium">{item}</span>
