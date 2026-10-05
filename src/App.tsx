@@ -87,7 +87,6 @@ export default function App() {
     let onPointerLeave: (() => void) | undefined;
 
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
       const header = document.querySelector('header') as HTMLElement | null;
       const navbarLogo = header?.querySelector('img') as HTMLElement | null;
 
@@ -117,91 +116,90 @@ export default function App() {
         .fromTo(heroMetricsRef.current, { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.35');
 
       // ============================================================
-      // HERO -> NAVBAR MORPH
-      // The Morph starts only after the CTA has been passed, so the
-      // navbar does not suddenly appear at the very top of the page.
+      // HERO -> NAVBAR MORPH — DESKTOP + MOBILE
+      // The same interaction is intentionally kept on every viewport:
+      // CTA is passed first, then navbar appears and the hero logo
+      // travels into the small navbar logo.
       // ============================================================
-      mm.add('(min-width: 768px)', () => {
-        if (header && heroCtasRef.current && heroLogoRef.current) {
-          const morphTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: heroCtasRef.current,
-              start: 'bottom 22%',
-              end: '+=520',
-              scrub: 1,
-              invalidateOnRefresh: true,
-            },
-          });
+      if (header && heroCtasRef.current && heroLogoRef.current) {
+        const morphTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroCtasRef.current,
+            start: 'bottom 24%',
+            end: () => window.innerWidth < 768 ? '+=420' : '+=520',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        });
 
-          morphTl.to(header, {
-            opacity: 1,
-            y: 0,
-            pointerEvents: 'auto',
-            duration: 0.28,
-            ease: 'none',
-          }, 0);
+        morphTl.to(header, {
+          opacity: 1,
+          y: 0,
+          pointerEvents: 'auto',
+          duration: 0.28,
+          ease: 'none',
+        }, 0);
 
-          // Hero brandmark physically travels toward the real navbar logo.
-          if (navbarLogo) {
-            const from = heroLogoRef.current.getBoundingClientRect();
-            const to = navbarLogo.getBoundingClientRect();
-            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
-            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
-            const scale = Math.min(to.width / from.width, to.height / from.height);
-
-            morphTl.to(heroLogoRef.current, {
-              x: dx,
-              y: dy,
-              scale: Math.max(0.18, Math.min(scale, 0.5)),
-              duration: 1,
-              ease: 'power2.inOut',
-            }, 0);
-          } else {
-            morphTl.to(heroLogoRef.current, {
-              x: '35vw',
-              y: -260,
-              scale: 0.42,
-              duration: 1,
-              ease: 'power2.inOut',
-            }, 0);
+        // Recalculate the geometry when ScrollTrigger refreshes so the
+        // morph remains correct after mobile rotation / resize.
+        const getMorphGeometry = () => {
+          const from = heroLogoRef.current!.getBoundingClientRect();
+          const to = navbarLogo?.getBoundingClientRect();
+          if (!to) {
+            return { dx: window.innerWidth * 0.34, dy: -window.innerHeight * 0.32, scale: window.innerWidth < 768 ? 0.32 : 0.42 };
           }
+          return {
+            dx: (to.left + to.width / 2) - (from.left + from.width / 2),
+            dy: (to.top + to.height / 2) - (from.top + from.height / 2),
+            scale: Math.max(0.16, Math.min(Math.min(to.width / from.width, to.height / from.height), window.innerWidth < 768 ? 0.42 : 0.5)),
+          };
+        };
 
-          const brandmark = heroLogoRef.current.querySelector('span');
-          if (brandmark) {
-            morphTl.to(brandmark, {
-              opacity: 0,
-              scale: 0.7,
-              duration: 0.35,
-              ease: 'none',
-            }, 0.45);
-          }
+        morphTl.to(heroLogoRef.current, {
+          x: () => getMorphGeometry().dx,
+          y: () => getMorphGeometry().dy,
+          scale: () => getMorphGeometry().scale,
+          duration: 1,
+          ease: 'power2.inOut',
+        }, 0);
 
-          // CTA exits upward as the navbar becomes the new persistent CTA.
-          morphTl.to(heroCtasRef.current, {
-            y: -250,
-            scale: 0.72,
+        const brandmark = heroLogoRef.current.querySelector('span');
+        if (brandmark) {
+          morphTl.to(brandmark, {
             opacity: 0,
-            duration: 1,
-            ease: 'power2.inOut',
-          }, 0);
-
-          morphTl.to([
-            heroTitleRef.current,
-            heroSubtitleRef.current,
-            heroTaglineRef.current,
-            heroDescRef.current,
-          ], {
-            y: -24,
-            opacity: 0.9,
-            duration: 1,
-            stagger: 0.025,
-            ease: 'power2.out',
-          }, 0);
+            scale: 0.7,
+            duration: 0.35,
+            ease: 'none',
+          }, 0.45);
         }
 
-        // Sections reveal with enough vertical breathing room between them.
-        const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
-        sections.forEach((section, index) => {
+        // CTA exits only after it has been passed by the scroll position.
+        morphTl.to(heroCtasRef.current, {
+          y: window.innerWidth < 768 ? -150 : -250,
+          scale: window.innerWidth < 768 ? 0.82 : 0.72,
+          opacity: 0,
+          duration: 1,
+          ease: 'power2.inOut',
+        }, 0);
+
+        morphTl.to([
+          heroTitleRef.current,
+          heroSubtitleRef.current,
+          heroTaglineRef.current,
+          heroDescRef.current,
+        ], {
+          y: window.innerWidth < 768 ? -12 : -24,
+          opacity: 0.9,
+          duration: 1,
+          stagger: 0.025,
+          ease: 'power2.out',
+        }, 0);
+
+      }
+
+      // Sections reveal with enough vertical breathing room between them.
+      const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
+      sections.forEach((section, index) => {
           gsap.fromTo(section, { opacity: 0, y: 42, scale: 0.985 }, {
             opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'power3.out',
             scrollTrigger: { trigger: section, start: 'top 82%', toggleActions: 'play none none reverse' }
@@ -230,27 +228,6 @@ export default function App() {
             y: index % 2 === 0 ? -8 : 8, ease: 'none',
             scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1.4 }
           });
-        });
-      });
-
-      mm.add('(max-width: 767px)', () => {
-        // Mobile keeps the navbar in normal app flow; no desktop Morph.
-        if (header) {
-          gsap.set(header, { position: 'relative', opacity: 1, y: 0, pointerEvents: 'auto' });
-        }
-
-        const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
-        sections.forEach(section => {
-          gsap.fromTo(section, { opacity: 0, y: 24 }, {
-            opacity: 1, y: 0, duration: 0.55, ease: 'power2.out',
-            scrollTrigger: { trigger: section, start: 'top 91%', toggleActions: 'play none none reverse' }
-          });
-          const cards = section.querySelectorAll('.gsap-card-stagger');
-          if (cards.length) gsap.fromTo(cards, { opacity: 0, y: 18, scale: 0.98 }, {
-            opacity: 1, y: 0, scale: 1, duration: 0.42, stagger: 0.06, ease: 'power2.out',
-            scrollTrigger: { trigger: section, start: 'top 88%', toggleActions: 'play none none reverse' }
-          });
-        });
       });
 
       // Interactive space background: cursor parallax + local glow.
@@ -452,11 +429,16 @@ Terima kasih.`;
           background:linear-gradient(180deg,#f8fafc 0%,#f8fafc 42%,rgba(248,250,252,.96) 64%,rgba(248,250,252,.72) 82%,rgba(248,250,252,0) 100%);
         }
         .yeg-content-section{
-          margin-top:clamp(3.5rem,7vw,7rem) !important;
-          margin-bottom:clamp(3.5rem,7vw,7rem) !important;
+          margin-top:clamp(5rem,9vw,9rem) !important;
+          margin-bottom:clamp(5rem,9vw,9rem) !important;
         }
         .yeg-content-section:first-child{margin-top:0 !important;}
 
+
+        @media(max-width:767px){
+          .yeg-content-section{margin-top:4.5rem !important;margin-bottom:4.5rem !important;}
+          .yeg-content-section:first-child{margin-top:0 !important;}
+        }
         /* Animated outer-space ambience */
         .yeg-space-background{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(10,116,99,.13),transparent 28%),radial-gradient(circle at 82% 28%,rgba(3,105,161,.11),transparent 25%),#050807}
         .yeg-space-stars{position:absolute;inset:-50px;opacity:.65;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(255,255,255,.42) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(52,211,153,.45) 0 1px,transparent 1.5px);background-size:73px 67px,137px 119px,211px 183px;background-position:0 0,34px 51px,91px 23px;transition:transform .35s cubic-bezier(.2,.8,.2,1);will-change:transform}
@@ -788,7 +770,7 @@ Terima kasih.`;
           <section
             ref={heroRef}
             id="hero-cover"
-            className={`yeg-hero-surface relative pt-4 sm:pt-10 md:pt-14 pb-24 sm:pb-32 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
+            className={`yeg-hero-surface relative pt-3 sm:pt-10 md:pt-14 pb-32 sm:pb-36 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
               theme === 'light' ? 'bg-white' : 'bg-[#080d0c]'
             }`}
           >
@@ -796,10 +778,21 @@ Terima kasih.`;
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
 
             <div className="max-w-6xl mx-auto relative z-10">
+              {/* Top Badges */}
+              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2 mb-6 sm:mb-8">
+                <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
+                  CREATIVE PRODUCTION PLATFORM
+                </span>
+                <span className="text-neutral-500">·</span>
+                <span className="px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-700/80 text-[11px] sm:text-xs text-neutral-300 font-mono">
+                  Est. 2025 · Bandung
+                </span>
+              </div>
 
               {/* HERO CONTENT: text left + large logo right */}
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
-                <div className="space-y-6 sm:space-y-8">
+                <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
                   {/* Main Headline */}
                   <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
                     <h1
@@ -879,12 +872,12 @@ Terima kasih.`;
                 {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
                   ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
+                  className="relative flex justify-center lg:justify-end items-center min-h-[190px] sm:min-h-[250px] lg:min-h-[430px] origin-center will-change-transform order-1 lg:order-2 -mt-2 sm:-mt-1 lg:mt-0"
                 >
-                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none yeg-loop-spin" />
+                  <div className="absolute w-[210px] h-[210px] sm:w-[250px] sm:h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none yeg-loop-spin" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} theme={theme} />
-                    <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
+                    <YegLogo size={300} animated={true} theme={theme} />
+                    <span className="mt-2 sm:mt-4 text-[9px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
                   </div>
@@ -1720,7 +1713,7 @@ Terima kasih.`;
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
                   <img
-                    src="/src/assets/images/m_ridhwan_mubarok_founder.jpg"
+                    src="/src/assets/images/m_ridhwan_mubarok_founder_1791040301376.jpg"
                     alt="Kak Ridhwan - Founder YEG"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top"
