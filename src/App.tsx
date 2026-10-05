@@ -83,6 +83,9 @@ export default function App() {
   useLayoutEffect(() => {
     if (currentView !== 'home') return;
 
+    let onPointerMove: ((event: PointerEvent) => void) | undefined;
+    let onPointerLeave: (() => void) | undefined;
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
@@ -158,7 +161,11 @@ export default function App() {
       requestAnimationFrame(() => ScrollTrigger.refresh());
     });
 
-    return () => ctx.revert();
+    return () => {
+      if (onPointerMove) window.removeEventListener('pointermove', onPointerMove);
+      if (onPointerLeave) window.removeEventListener('pointerleave', onPointerLeave);
+      ctx.revert();
+    };
   }, [currentView]);
 
   // Monitor scroll position for BackToTopButton
@@ -285,20 +292,34 @@ Terima kasih.`;
           : 'bg-[#080d0c] text-neutral-100'
       }`}
     >
-      <div className="yeg-space-background" aria-hidden="true"><div className="yeg-space-stars" /><div className="yeg-space-nebula yeg-loop-float" /><div className="yeg-space-orbit yeg-loop-spin"><span className="yeg-space-orbit-dot" /></div><div className="yeg-space-orbit yeg-space-orbit-2 yeg-loop-spin"><span className="yeg-space-orbit-dot" /></div><div className="yeg-space-planet yeg-loop-float" /></div>
+      <div className="yeg-space-background" aria-hidden="true">
+        <div className="yeg-space-stars" />
+        <div className="yeg-space-glow yeg-space-glow-a" />
+        <div className="yeg-space-glow yeg-space-glow-b" />
+        <div className="yeg-space-orbit yeg-space-orbit-1"><span className="yeg-space-orbit-dot" /></div>
+        <div className="yeg-space-orbit yeg-space-orbit-2"><span className="yeg-space-orbit-dot" /></div>
+        <div className="yeg-space-planet" />
+        <div className="yeg-space-cursor-glow" />
+      </div>
 
       <style>{`
 
         /* Animated outer-space ambience */
-        .yeg-space-background{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(10,116,99,.14),transparent 28%),radial-gradient(circle at 82% 28%,rgba(3,105,161,.12),transparent 25%),radial-gradient(circle at 50% 90%,rgba(168,85,247,.08),transparent 30%),#050807}
-        .yeg-space-stars{position:absolute;inset:-40px;opacity:.72;background-image:radial-gradient(circle,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(255,255,255,.48) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(52,211,153,.5) 0 1px,transparent 1.5px);background-size:73px 67px,137px 119px,211px 183px;background-position:0 0,34px 51px,91px 23px;mask-image:radial-gradient(ellipse at center,black 40%,transparent 88%)}
-        .yeg-space-nebula{position:absolute;width:420px;height:420px;left:-130px;top:20%;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.12),rgba(10,116,99,.04) 42%,transparent 70%);filter:blur(18px)}
-        .yeg-space-planet{position:absolute;width:150px;height:150px;right:-50px;bottom:12%;border-radius:50%;background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.25),transparent 13%),radial-gradient(circle at 42% 38%,#17483e,#0a7463 46%,#052b25 78%);box-shadow:0 0 55px rgba(10,116,99,.25),inset -24px -18px 35px rgba(0,0,0,.45);opacity:.55}
-        .yeg-space-orbit{position:absolute;width:460px;height:180px;right:-120px;top:14%;border:1px solid rgba(52,211,153,.12);border-radius:50%;transform:rotate(-18deg);opacity:.55}.yeg-space-orbit-2{width:600px;height:240px;right:-200px;top:8%;border-color:rgba(56,189,248,.08);transform:rotate(22deg)}.yeg-space-orbit-dot{position:absolute;width:8px;height:8px;left:10%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#34d399;box-shadow:0 0 18px rgba(52,211,153,.8)}
-        .yeg-loop-float,.yeg-loop-spin{will-change:transform}[data-yeg-theme] > :not(.yeg-space-background){position:relative;z-index:1}[data-yeg-theme="light"] .yeg-space-background{opacity:.16;filter:saturate(.7)}
-        @media(max-width:767px){.yeg-space-nebula{width:260px;height:260px}.yeg-space-planet{width:95px;height:95px;right:-35px}.yeg-space-orbit{width:300px;height:120px;right:-100px}.yeg-space-orbit-2{width:390px;height:155px;right:-140px}}
+        .yeg-space-background{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(10,116,99,.13),transparent 28%),radial-gradient(circle at 82% 28%,rgba(3,105,161,.11),transparent 25%),#050807}
+        .yeg-space-stars{position:absolute;inset:-50px;opacity:.65;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(255,255,255,.42) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(52,211,153,.45) 0 1px,transparent 1.5px);background-size:73px 67px,137px 119px,211px 183px;background-position:0 0,34px 51px,91px 23px;transition:transform .35s cubic-bezier(.2,.8,.2,1);will-change:transform}
+        .yeg-space-glow{position:absolute;border-radius:50%;filter:blur(45px);transition:transform .7s cubic-bezier(.2,.8,.2,1);will-change:transform}
+        .yeg-space-glow-a{width:420px;height:420px;left:-150px;top:18%;background:rgba(16,185,129,.10)}
+        .yeg-space-glow-b{width:360px;height:360px;right:-120px;bottom:8%;background:rgba(14,165,233,.08)}
+        .yeg-space-planet{position:absolute;width:150px;height:150px;right:-55px;bottom:12%;border-radius:50%;background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.24),transparent 13%),radial-gradient(circle at 42% 38%,#17483e,#0a7463 46%,#052b25 78%);box-shadow:0 0 55px rgba(10,116,99,.22),inset -24px -18px 35px rgba(0,0,0,.45);opacity:.48;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+        .yeg-space-orbit{position:absolute;width:460px;height:180px;right:-120px;top:14%;border:1px solid rgba(52,211,153,.10);border-radius:50%;transform:rotate(-18deg);opacity:.5;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+        .yeg-space-orbit-2{width:600px;height:240px;right:-200px;top:8%;border-color:rgba(56,189,248,.07);transform:rotate(22deg)}
+        .yeg-space-orbit-dot{position:absolute;width:8px;height:8px;left:10%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#34d399;box-shadow:0 0 18px rgba(52,211,153,.7)}
+        .yeg-space-cursor-glow{position:absolute;width:280px;height:280px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.075),transparent 68%);filter:blur(8px);opacity:0;transition:opacity .3s ease,transform .15s ease;will-change:transform}
+        .yeg-loop-float,.yeg-loop-spin{will-change:transform}
+        [data-yeg-theme] > :not(.yeg-space-background){position:relative;z-index:1}
+        [data-yeg-theme="light"] .yeg-space-background{opacity:.12;filter:saturate(.7)}
+        @media(max-width:767px){.yeg-space-glow-a{width:260px;height:260px}.yeg-space-glow-b{width:230px;height:230px}.yeg-space-planet{width:95px;height:95px;right:-35px}.yeg-space-orbit{width:300px;height:120px;right:-100px}.yeg-space-orbit-2{width:390px;height:155px;right:-140px}}
         @media(prefers-reduced-motion:reduce){.yeg-space-background{display:none}}
-
         /* ============================================================
            YEG THEME SYSTEM — LIGHT MODE COMPLETE CONTRAST FIX
            Dark mode keeps the original visual language.
@@ -728,36 +749,9 @@ Terima kasih.`;
                 </div>
               </div>
 
-              {/* Studio Visual Asset & Key Highlights */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch pt-2 sm:pt-4">
-                <div
-                  ref={heroVisualRef}
-                  className="lg:col-span-8 relative rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl aspect-[16/10] sm:aspect-[16/9] max-h-[380px] sm:max-h-[440px]"
-                >
-                  <img
-                    src="/src/assets/images/yeg_creative_studio_1791037426847.jpg"
-                    alt="YEG Production Creative Studio"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-white">
-                    <div>
-                      <span className="text-[10px] sm:text-xs font-mono text-[#34d399] font-bold uppercase tracking-wider block">
-                        CREATIVE PRODUCTION OPERATIONS
-                      </span>
-                      <h3 className="text-base sm:text-2xl font-bold font-heading mt-0.5">
-                        Menghubungkan Ide Visual dengan Produksi Fisik
-                      </h3>
-                    </div>
-                    <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 text-[11px] sm:text-xs text-neutral-300 self-start sm:self-auto font-medium">
-                      Kombinasi Desain & Vendor
-                    </span>
-                  </div>
-                </div>
-
+              {/* Snapshot Metrics — horizontal layout */}
                 {/* 4 Interactive Snapshot Metrics: Compact 2x2 grid on mobile */}
-                <div ref={heroMetricsRef} className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3.5">
+                <div ref={heroMetricsRef} className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
                   {[
                     {
                       num: '2025',
