@@ -280,187 +280,131 @@ heroMetricsRef.current,
           });
         }
 
-        // ============================================================
-        // STACKED LAYER TRANSITION — DESKTOP
-        // The next section rises over the previous section.
-        // ============================================================
-        const stackedSections = document.querySelectorAll<HTMLElement>(
-          '.stacked-scroll-section'
-        );
-
-        stackedSections.forEach((section, index) => {
-          if (index === 0) {
-            gsap.set(section, { opacity: 1, scale: 1, yPercent: 0 });
-            return;
-          }
+        // ClipPath reveal on desktop
+        const revealSections = document.querySelectorAll('.gsap-reveal-section');
+        revealSections.forEach((section, index) => {
+          const initialClip =
+            index % 2 === 0
+              ? 'inset(6% 0% 6% 0% round 28px)'
+              : 'inset(0% 4% 0% 4% round 28px)';
 
           gsap.fromTo(
             section,
+            { clipPath: initialClip, opacity: 0.2, y: 40 },
             {
-              yPercent: 8,
-              opacity: 0.18,
-              scale: 0.96,
-            },
-            {
-              yPercent: 0,
+              clipPath: 'inset(0% 0% 0% 0% round 28px)',
               opacity: 1,
-              scale: 1,
-              ease: 'none',
+              y: 0,
+              duration: 0.9,
+              ease: 'power3.out',
               scrollTrigger: {
                 trigger: section,
-                start: 'top bottom',
-                end: 'top top',
-                scrub: 0.8,
-                invalidateOnRefresh: true,
+                start: 'top 85%',
+                end: 'bottom 15%',
+                toggleActions: 'play none none reverse',
               },
             }
           );
 
-          // Keep the section underneath subtly pushed back while the
-          // next layer comes forward.
-          if (index > 0) {
-            const previous = stackedSections[index - 1] as HTMLElement;
-
-            gsap.to(previous, {
-              scale: 0.965,
-              opacity: 0.72,
-              filter: 'brightness(0.72)',
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 90%',
-                end: 'top 10%',
-                scrub: 0.8,
-                invalidateOnRefresh: true,
-              },
-            });
+          const innerCards = section.querySelectorAll('.gsap-card-stagger');
+          if (innerCards.length > 0) {
+            gsap.fromTo(
+              innerCards,
+              { opacity: 0, y: 25, scale: 0.98 },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.6,
+                stagger: 0.08,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: section,
+                  start: 'top 80%',
+                  toggleActions: 'play none none reverse',
+                },
+              }
+            );
           }
         });
+      });
 
-      // ============================================================
-      // MOBILE (max-width: 767px)
-      // Logo diperkecil + dipindah ke atas konten.
-      // Navbar muncul setelah user mulai scroll dan tetap sticky di atas.
-      // Desktop animation di atas tidak disentuh.
-      // ============================================================
+      // MOBILE (max-width: 767px): Lightweight smooth fade & subtle 20px slide (zero clipping)
       mm.add('(max-width: 767px)', () => {
-        const header = document.getElementById('yeg-floating-header') || document.querySelector('header');
-
-        // Navbar mobile: tersembunyi ketika masih di paling atas.
-        if (header) {
-          gsap.set(header, {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            width: '100%',
-            zIndex: 100,
-            autoAlpha: 0,
-            y: -18,
-            pointerEvents: 'none',
-          });
-        }
-
-        // Hero masuk dengan animasi ringan.
         gsap.fromTo(
           [heroLogoRef.current, heroTitleRef.current, heroSubtitleRef.current, heroCtasRef.current],
           { opacity: 0, y: 15 },
           { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
         );
 
-        // Navbar muncul ketika scroll melewati sedikit bagian hero.
-        let navbarTrigger: ScrollTrigger | null = null;
-
-        if (header && heroRef.current) {
-          navbarTrigger = ScrollTrigger.create({
-            trigger: heroRef.current,
-            start: 'top top-=1',
-            end: '+=260',
-            onUpdate: (self) => {
-              if (self.progress > 0.10) {
-                gsap.to(header, {
-                  autoAlpha: 1,
-                  y: 0,
-                  duration: 0.28,
-                  ease: 'power3.out',
-                  pointerEvents: 'auto',
-                  overwrite: true,
-                });
-              } else {
-                gsap.to(header, {
-                  autoAlpha: 0,
-                  y: -18,
-                  duration: 0.22,
-                  ease: 'power2.in',
-                  pointerEvents: 'none',
-                  overwrite: true,
-                });
-              }
-            },
-          });
-        }
-
-        // ============================================================
-        // STACKED LAYER TRANSITION — MOBILE
-        // Lighter than desktop so scrolling stays responsive.
-        // ============================================================
-        const stackedSections = document.querySelectorAll<HTMLElement>(
-          '.stacked-scroll-section'
-        );
-
-        stackedSections.forEach((section, index) => {
-          if (index === 0) {
-            gsap.set(section, { opacity: 1, scale: 1, yPercent: 0 });
-            return;
-          }
-
+        const revealSections = document.querySelectorAll('.gsap-reveal-section');
+        revealSections.forEach((section) => {
           gsap.fromTo(
             section,
+            { opacity: 0.1, y: 20 },
             {
-              yPercent: 5,
-              opacity: 0.2,
-              scale: 0.985,
-            },
-            {
-              yPercent: 0,
               opacity: 1,
-              scale: 1,
+              y: 0,
+              duration: 0.5,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 92%',
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        });
+      });
+    }, heroRef);
+
+        // Cinematic stacked-scroll transition.
+        const stackedSections = gsap.utils.toArray<HTMLElement>('.stacked-scroll-section');
+
+        if (stackedSections.length) {
+          gsap.set(stackedSections, {
+            opacity: 1,
+            scale: 1,
+            yPercent: 0,
+            filter: 'brightness(1)',
+          });
+
+          stackedSections.forEach((section, index) => {
+            if (index === 0) return;
+
+            gsap.fromTo(
+              section,
+              { yPercent: 8, opacity: 0.18, scale: 0.96 },
+              {
+                yPercent: 0,
+                opacity: 1,
+                scale: 1,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: section,
+                  start: 'top bottom',
+                  end: 'top top',
+                  scrub: 0.8,
+                },
+              }
+            );
+
+            const previous = stackedSections[index - 1];
+
+            gsap.to(previous, {
+              scale: 0.965,
+              opacity: 0.72,
+              filter: 'brightness(.72)',
               ease: 'none',
               scrollTrigger: {
                 trigger: section,
                 start: 'top bottom',
                 end: 'top top',
-                scrub: 0.65,
-                invalidateOnRefresh: true,
+                scrub: 0.8,
               },
-            }
-          );
-
-          const previous = stackedSections[index - 1] as HTMLElement;
-
-          gsap.to(previous, {
-            scale: 0.98,
-            opacity: 0.78,
-            filter: 'brightness(0.82)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 92%',
-              end: 'top 12%',
-              scrub: 0.65,
-              invalidateOnRefresh: true,
-            },
+            });
           });
-        });
-
-        return () => {
-          navbarTrigger?.kill();
-          if (header) {
-            gsap.set(header, { clearProps: 'all' });
-          }
-        };
-      });
-    }, heroRef);
+        }
 
     return () => ctx.revert();
   }, [currentView]);
@@ -882,91 +826,6 @@ Terima kasih.`;
           color: white !important;
         }
       `}</style>
-      {/* ============================================================
-          STACKED SCROLL / LAYERED STORYTELLING
-          Each section becomes a full-screen sticky layer. The next
-          section slides over the previous one while GSAP handles the
-          fade/scale transition.
-      ============================================================ */}
-      <style>{`
-        .stacked-scroll-main {
-          position: relative;
-          overflow: clip;
-        }
-
-        .stacked-scroll-section {
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          width: 100vw;
-          max-width: none !important;
-          min-height: 100svh;
-          margin-left: calc(50% - 50vw) !important;
-          margin-right: calc(50% - 50vw) !important;
-          padding-left: max(0.875rem, calc((100vw - 72rem) / 2 + 1.5rem));
-          padding-right: max(0.875rem, calc((100vw - 72rem) / 2 + 1.5rem));
-          padding-top: clamp(4.5rem, 8vh, 7rem);
-          padding-bottom: clamp(3rem, 7vh, 6rem);
-          display: flex;
-          align-items: center;
-          box-sizing: border-box;
-          isolation: isolate;
-          overflow: hidden;
-          background: #080d0c;
-          box-shadow: 0 -18px 55px rgba(0,0,0,.22);
-        }
-
-        .stacked-scroll-section::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          background: inherit;
-        }
-
-        .stacked-scroll-section > * {
-          position: relative;
-          z-index: 1;
-        }
-
-        .stacked-scroll-hero {
-          min-height: 100svh;
-          padding-top: 4.5rem;
-        }
-
-        [data-yeg-theme="light"] .stacked-scroll-section {
-          background: #ffffff;
-        }
-
-        /* The old reveal animation is replaced by the layered transition. */
-        .stacked-scroll-section.gsap-reveal-section {
-          will-change: transform, opacity;
-        }
-
-        @media (max-width: 767px) {
-          .stacked-scroll-section {
-            min-height: 100svh;
-            padding-left: 0.875rem;
-            padding-right: 0.875rem;
-            padding-top: 4.25rem;
-            padding-bottom: 2.5rem;
-            align-items: center;
-          }
-
-          .stacked-scroll-hero {
-            padding-top: 4.5rem;
-            padding-bottom: 2rem;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .stacked-scroll-section {
-            position: relative;
-            min-height: auto;
-          }
-        }
-      `}</style>
-
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
       <HeaderNav
         currentView={currentView}
@@ -990,7 +849,7 @@ Terima kasih.`;
           <section
             ref={heroRef}
             id="hero-cover"
-            className={`stacked-scroll-section stacked-scroll-hero relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
+            className={`relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
               theme === 'light' ? 'bg-white' : 'bg-[#080d0c]'
             }`}
           >
@@ -1012,7 +871,7 @@ Terima kasih.`;
 
               {/* HERO CONTENT: text left + large logo right */}
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
-                <div className="space-y-6 sm:space-y-8 order-last lg:order-first">
+                <div className="space-y-6 sm:space-y-8">
                   {/* Main Headline */}
                   <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
                     <h1
@@ -1092,12 +951,12 @@ Terima kasih.`;
                 {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
                   ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[190px] sm:min-h-[230px] lg:min-h-[430px] origin-center will-change-transform order-first lg:order-last -mt-2 sm:mt-0"
+                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
                 >
-                  <div className="absolute w-[170px] h-[170px] sm:w-[220px] sm:h-[220px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[65px] sm:blur-[80px] lg:blur-[90px] pointer-events-none" />
+                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <div className="scale-[0.58] sm:scale-[0.74] lg:scale-100 origin-center"><YegLogo size={360} animated={true} theme={theme} /></div>
-                    <span className="mt-0 sm:mt-2 lg:mt-4 text-[8px] sm:text-xs font-mono tracking-[0.28em] sm:tracking-[0.35em] text-[#34d399] uppercase font-bold">
+                    <YegLogo size={360} animated={true} theme={theme} />
+                    <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
                   </div>
@@ -1179,7 +1038,8 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               TENTANG YEG PRODUCTION & PERUBAHAN KONSEP (GSAP Reveal)
           ============================================================ */}
           <section id="section-tentang" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1343,7 +1203,8 @@ Terima kasih.`;
               )}
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               AWAL MULA YEG PRODUCTION (2025) (GSAP Reveal)
           ============================================================ */}
           <section id="section-how-it-started" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1406,7 +1267,8 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               BUSINESS MODEL (DUAL PILLARS) (GSAP Reveal)
           ============================================================ */}
           <section id="section-model-bisnis" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1515,7 +1377,8 @@ Terima kasih.`;
               </span>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               PRODUK PERTAMA & CUSTOMIZER (GSAP Reveal)
           ============================================================ */}
           <section id="section-produk-pertama" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1581,7 +1444,8 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               KENAPA MEMULAI DARI PRODUK? (BOOTSTRAP) (GSAP Reveal)
           ============================================================ */}
           <section id="section-kenapa-produk" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1650,7 +1514,8 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               CARA KAMI BEKERJA (6 PILAR) (GSAP Reveal)
           ============================================================ */}
           <section id="section-budaya-kerja" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1699,7 +1564,8 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               KENAPA YEG MEMBUTUHKAN PARTNER & KUIS (GSAP Reveal)
           ============================================================ */}
           <section id="section-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1788,7 +1654,8 @@ Terima kasih.`;
             {/* Interactive Partner Matcher Quiz */}
             <PartnerQuizMatcher onOpenCandidateForm={() => setIsCandidateModalOpen(true)} />
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               PERAN DALAM YEG PRODUCTION (6 LINGKUP) (GSAP Reveal)
           ============================================================ */}
           <section id="section-peran-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1842,7 +1709,8 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               COMPENSATION & WORKING SYSTEM (GSAP Reveal)
           ============================================================ */}
           <section id="section-kompensasi" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1887,7 +1755,8 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               THE BIG VISION & ONE BRAND (GSAP Reveal)
           ============================================================ */}
           <section id="section-visi-ekosistem" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -1942,7 +1811,8 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               DEDICATED FOUNDER PROFILE BANNER (Leads to 1-Page CV)
           ============================================================ */}
           <section className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
@@ -1978,7 +1848,8 @@ Terima kasih.`;
               </button>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               ROADMAP & DUAL COMMITMENT (GSAP Reveal)
           ============================================================ */}
           <section id="section-roadmap-komitmen" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
@@ -2067,7 +1938,8 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-{/* ============================================================
+
+          {/* ============================================================
               FINAL CALL TO ACTION (GSAP Reveal) WITH ENLARGED LOGO
           ============================================================ */}
           <section id="section-final-call" className="stacked-scroll-section gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
