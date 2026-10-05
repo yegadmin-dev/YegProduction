@@ -1713,7 +1713,7 @@ Terima kasih.`;
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
                   <img
-                    src="/src/assets/images/m_ridhwan_mubarok_founder_1791040301376.jpg"
+                    src="/src/assets/images/m_ridhwan_mubarok_founder.jpg"
                     alt="Kak Ridhwan - Founder YEG"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top"
