@@ -778,18 +778,7 @@ Terima kasih.`;
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
 
             <div className="max-w-6xl mx-auto relative z-10">
-              {/* Top Badges */}
-              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2 mb-6 sm:mb-8">
-                <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
-                  CREATIVE PRODUCTION PLATFORM
-                </span>
-                <span className="text-neutral-500">·</span>
-                <span className="px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-700/80 text-[11px] sm:text-xs text-neutral-300 font-mono">
-                  Est. 2025 · Bandung
-                </span>
-              </div>
-
+           
               {/* HERO CONTENT: text left + large logo right */}
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
                 <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
