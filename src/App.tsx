@@ -76,335 +76,87 @@ export default function App() {
   };
   
     // Responsive GSAP animations using matchMedia (smooth on desktop, lightweight on mobile)
+  // ============================================================
+  // YEG ANIMATION SYSTEM
+  // Normal vertical scroll + reveal/stagger + subtle parallax.
+  // ============================================================
   useLayoutEffect(() => {
-if (currentView !== 'home') return;
+    if (currentView !== 'home') return;
 
-const ctx = gsap.context(() => {
-const mm = gsap.matchMedia(); 
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
 
-// DESKTOP (min-width: 768px): Full ClipPath Reveal, Parallax & Stagger
-mm.add('(min-width: 768px)', () => {
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const heroTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      heroTimeline
+        .fromTo(heroBadgeRef.current, { opacity: 0, y: -18, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.55 })
+        .fromTo(heroLogoRef.current, { opacity: 0, scale: 0.82, rotation: -5 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.8 }, '-=0.25')
+        .fromTo(heroTitleRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.65 }, '-=0.4')
+        .fromTo(heroSubtitleRef.current, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.3')
+        .fromTo(heroTaglineRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.28')
+        .fromTo(heroDescRef.current, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.25')
+        .fromTo(heroCtasRef.current, { opacity: 0, y: 18, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.55 }, '-=0.25')
+        .fromTo(heroVisualRef.current, { opacity: 0, y: 30, scale: 0.985 }, { opacity: 1, y: 0, scale: 1, duration: 0.7 }, '-=0.3')
+        .fromTo(heroMetricsRef.current, { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4');
 
-tl.fromTo(
- heroBadgeRef.current,
-{ opacity: 0, y: -15 },
-{ opacity: 1, y: 0, duration: 0.5 }
- ) 
-.fromTo( 
-heroLogoRef.current, 
-{ opacity: 0, scale: 0.85, rotation: -6 }, 
-{ opacity: 1, scale: 1, rotation: 0, duration: 0.6 }, 
-'-=0.2' 
-) 
-.fromTo(
-heroTitleRef.current, 
-{ opacity: 0, y: 25 }, 
-{ opacity: 1, y: 0, duration: 0.6 },
-'-=0.3'
-) 
-.fromTo( 
-heroSubtitleRef.current, 
-{ opacity: 0, y: 15 },
-{ opacity: 1, y: 0, duration: 0.5 }, 
-'-=0.3' 
-)
- .fromTo( 
-heroTaglineRef.current, 
-{ opacity: 0, y: 12 }, 
-{ opacity: 1, y: 0, duration: 0.5 }, 
-'-=0.3' 
-) 
-.fromTo( 
-heroDescRef.current, 
-{ opacity: 0, y: 15 }, 
-{ opacity: 1, y: 0, duration: 0.5 }, 
-'-=0.2' 
-) 
-.fromTo( 
-heroCtasRef.current, 
-{ opacity: 0, scale: 0.96, y: 15 },
-{ opacity: 1, scale: 1, y: 0, duration: 0.5 }, 
-'-=0.2' 
-) 
-.fromTo( 
-heroVisualRef.current, 
-{ opacity: 0, y: 30 }, 
-{ opacity: 1, y: 0, duration: 0.7 },
- '-=0.3'
-) 
-.fromTo(
-heroMetricsRef.current, 
-{ opacity: 0, y: 20 }, 
-{ opacity: 1, y: 0, duration: 0.6 }, 
-'-=0.4' 
-); 
-  
-        // ============================================================
-        // YEG HERO → FLOATING NAV MORPH
-        // Scroll-driven / scrub based — PowerPoint Morph style.
-        // Desktop only: hero logo moves toward the real navbar logo,
-        // scales down, while the hero CTA transitions into the navbar.
-        // ============================================================
-        const header = document.querySelector('header') as HTMLElement | null;
-
-        if (header && heroRef.current && heroLogoRef.current && heroCtasRef.current) {
-          const navbarLogo = header.querySelector('img') as HTMLElement | null;
-          // Make the existing HeaderNav behave as the floating navbar.
-          gsap.set(header, {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 50,
-            opacity: 0,
-            y: -20,
-            pointerEvents: 'none',
+      mm.add('(min-width: 768px)', () => {
+        const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
+        sections.forEach((section, index) => {
+          gsap.fromTo(section, { opacity: 0, y: 42, scale: 0.985 }, {
+            opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'power3.out',
+            scrollTrigger: { trigger: section, start: 'top 82%', toggleActions: 'play none none reverse' }
           });
 
-          const morphTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: heroRef.current,
-              start: 'top top',
-              end: '+=620',
-              scrub: 1,
-              invalidateOnRefresh: true,
-            },
+          const heading = section.querySelector('h2');
+          if (heading) gsap.fromTo(heading, { opacity: 0, y: 22, clipPath: 'inset(0 0 100% 0)' }, {
+            opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.65, ease: 'power3.out',
+            scrollTrigger: { trigger: section, start: 'top 78%', toggleActions: 'play none none reverse' }
           });
 
-          morphTl.to(
-            header,
-            {
-              opacity: 1,
-              y: 0,
-              pointerEvents: 'auto',
-              duration: 0.28,
-              ease: 'none',
-            },
-            0
-          );
-
-          // Hero logo → navbar logo.
-          if (navbarLogo) {
-            const from = heroLogoRef.current.getBoundingClientRect();
-            const to = navbarLogo.getBoundingClientRect();
-
-            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
-            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
-            const scale = Math.min(to.width / from.width, to.height / from.height);
-
-            morphTl.to(
-              heroLogoRef.current,
-              {
-                x: dx,
-                y: dy,
-                scale: Math.max(0.18, Math.min(scale, 0.5)),
-                duration: 1,
-                ease: 'power2.inOut',
-              },
-              0
-            );
-          } else {
-            morphTl.to(
-              heroLogoRef.current,
-              {
-                x: '35vw',
-                y: -260,
-                scale: 0.42,
-                duration: 1,
-                ease: 'power2.inOut',
-              },
-              0
-            );
-          }
-
-          // Fade the small BRANDMARK label during the morph.
-          const brandmark = heroLogoRef.current.querySelector('span');
-          if (brandmark) {
-            morphTl.to(
-              brandmark,
-              {
-                opacity: 0,
-                scale: 0.7,
-                duration: 0.35,
-                ease: 'none',
-              },
-              0.45
-            );
-          }
-
-          // Hero CTA travels upward and disappears as the navbar CTA arrives.
-          morphTl.to(
-            heroCtasRef.current,
-            {
-              y: -270,
-              scale: 0.72,
-              opacity: 0,
-              duration: 1,
-              ease: 'power2.inOut',
-            },
-            0
-          );
-
-
-          // Supporting hero copy gently moves away from the morph path.
-          morphTl.to(
-            [
-              heroTitleRef.current,
-              heroSubtitleRef.current,
-              heroTaglineRef.current,
-              heroDescRef.current,
-            ],
-            {
-              y: -30,
-              opacity: 0.9,
-              duration: 1,
-              stagger: 0.025,
-              ease: 'power2.out',
-            },
-            0
-          );
-        }
-
-        // Hero visual subtle parallax
-        if (heroVisualRef.current) {
-          gsap.to(heroVisualRef.current, {
-            scrollTrigger: {
-              trigger: heroRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-            y: -25,
-            opacity: 0.95,
+          const cards = section.querySelectorAll('.gsap-card-stagger');
+          if (cards.length) gsap.fromTo(cards, { opacity: 0, y: 28, scale: 0.96 }, {
+            opacity: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.09, ease: 'back.out(1.2)',
+            scrollTrigger: { trigger: section, start: 'top 76%', toggleActions: 'play none none reverse' }
           });
-        }
 
-        // ClipPath reveal on desktop
-        const revealSections = document.querySelectorAll('.gsap-reveal-section');
-        revealSections.forEach((section, index) => {
-          const initialClip =
-            index % 2 === 0
-              ? 'inset(6% 0% 6% 0% round 28px)'
-              : 'inset(0% 4% 0% 4% round 28px)';
+          const content = section.querySelectorAll(':scope > div > p, :scope > div > span, :scope > div > div');
+          if (content.length) gsap.fromTo(content, { opacity: 0, y: 16 }, {
+            opacity: 1, y: 0, duration: 0.5, stagger: 0.055, ease: 'power2.out',
+            scrollTrigger: { trigger: section, start: 'top 74%', toggleActions: 'play none none reverse' }
+          });
 
-          gsap.fromTo(
-            section,
-            { clipPath: initialClip, opacity: 0.2, y: 40 },
-            {
-              clipPath: 'inset(0% 0% 0% 0% round 28px)',
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 85%',
-                end: 'bottom 15%',
-                toggleActions: 'play none none reverse',
-              },
-            }
-          );
-
-          const innerCards = section.querySelectorAll('.gsap-card-stagger');
-          if (innerCards.length > 0) {
-            gsap.fromTo(
-              innerCards,
-              { opacity: 0, y: 25, scale: 0.98 },
-              {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.6,
-                stagger: 0.08,
-                ease: 'power2.out',
-                scrollTrigger: {
-                  trigger: section,
-                  start: 'top 80%',
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
-          }
+          const inner = section.querySelector(':scope > div');
+          if (inner) gsap.to(inner, {
+            y: index % 2 === 0 ? -10 : 10, ease: 'none',
+            scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1.4 }
+          });
         });
       });
 
-      // MOBILE (max-width: 767px): Lightweight smooth fade & subtle 20px slide (zero clipping)
       mm.add('(max-width: 767px)', () => {
-        gsap.fromTo(
-          [heroLogoRef.current, heroTitleRef.current, heroSubtitleRef.current, heroCtasRef.current],
-          { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
-        );
-
-        const revealSections = document.querySelectorAll('.gsap-reveal-section');
-        revealSections.forEach((section) => {
-          gsap.fromTo(
-            section,
-            { opacity: 0.1, y: 20 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.5,
-              ease: 'power2.out',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 92%',
-                toggleActions: 'play none none reverse',
-              },
-            }
-          );
+        const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
+        sections.forEach(section => {
+          gsap.fromTo(section, { opacity: 0, y: 24 }, {
+            opacity: 1, y: 0, duration: 0.55, ease: 'power2.out',
+            scrollTrigger: { trigger: section, start: 'top 91%', toggleActions: 'play none none reverse' }
+          });
+          const cards = section.querySelectorAll('.gsap-card-stagger');
+          if (cards.length) gsap.fromTo(cards, { opacity: 0, y: 18, scale: 0.98 }, {
+            opacity: 1, y: 0, scale: 1, duration: 0.42, stagger: 0.06, ease: 'power2.out',
+            scrollTrigger: { trigger: section, start: 'top 88%', toggleActions: 'play none none reverse' }
+          });
         });
       });
-    }, heroRef);
 
-        // Cinematic stacked-scroll transition.
-        const stackedSections = gsap.utils.toArray<HTMLElement>('.stacked-scroll-section');
-
-        if (stackedSections.length) {
-          gsap.set(stackedSections, {
-            opacity: 1,
-            scale: 1,
-            yPercent: 0,
-            filter: 'brightness(1)',
-          });
-
-          stackedSections.forEach((section, index) => {
-            if (index === 0) return;
-
-            gsap.fromTo(
-              section,
-              { yPercent: 8, opacity: 0.18, scale: 0.96 },
-              {
-                yPercent: 0,
-                opacity: 1,
-                scale: 1,
-                ease: 'none',
-                scrollTrigger: {
-                  trigger: section,
-                  start: 'top bottom',
-                  end: 'top top',
-                  scrub: 0.8,
-                },
-              }
-            );
-
-            const previous = stackedSections[index - 1];
-
-            gsap.to(previous, {
-              scale: 0.965,
-              opacity: 0.72,
-              filter: 'brightness(.72)',
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top bottom',
-                end: 'top top',
-                scrub: 0.8,
-              },
-            });
-          });
-        }
+      gsap.utils.toArray<HTMLElement>('.yeg-loop-float').forEach((el, i) => gsap.to(el, {
+        y: i % 2 === 0 ? -14 : 14, x: i % 3 === 0 ? 8 : -8, rotation: i % 2 === 0 ? 2 : -2,
+        duration: 3.2 + (i % 4) * 0.55, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: i * 0.15
+      }));
+      gsap.utils.toArray<HTMLElement>('.yeg-loop-spin').forEach((el, i) => gsap.to(el, {
+        rotation: i % 2 === 0 ? 360 : -360, duration: 35 + i * 8, ease: 'none', repeat: -1
+      }));
+      gsap.to('.yeg-space-stars', { backgroundPosition: '120px 80px', duration: 28, ease: 'none', repeat: -1 });
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
 
     return () => ctx.revert();
   }, [currentView]);
@@ -533,7 +285,20 @@ Terima kasih.`;
           : 'bg-[#080d0c] text-neutral-100'
       }`}
     >
+      <div className="yeg-space-background" aria-hidden="true"><div className="yeg-space-stars" /><div className="yeg-space-nebula yeg-loop-float" /><div className="yeg-space-orbit yeg-loop-spin"><span className="yeg-space-orbit-dot" /></div><div className="yeg-space-orbit yeg-space-orbit-2 yeg-loop-spin"><span className="yeg-space-orbit-dot" /></div><div className="yeg-space-planet yeg-loop-float" /></div>
+
       <style>{`
+
+        /* Animated outer-space ambience */
+        .yeg-space-background{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(10,116,99,.14),transparent 28%),radial-gradient(circle at 82% 28%,rgba(3,105,161,.12),transparent 25%),radial-gradient(circle at 50% 90%,rgba(168,85,247,.08),transparent 30%),#050807}
+        .yeg-space-stars{position:absolute;inset:-40px;opacity:.72;background-image:radial-gradient(circle,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(255,255,255,.48) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(52,211,153,.5) 0 1px,transparent 1.5px);background-size:73px 67px,137px 119px,211px 183px;background-position:0 0,34px 51px,91px 23px;mask-image:radial-gradient(ellipse at center,black 40%,transparent 88%)}
+        .yeg-space-nebula{position:absolute;width:420px;height:420px;left:-130px;top:20%;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.12),rgba(10,116,99,.04) 42%,transparent 70%);filter:blur(18px)}
+        .yeg-space-planet{position:absolute;width:150px;height:150px;right:-50px;bottom:12%;border-radius:50%;background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.25),transparent 13%),radial-gradient(circle at 42% 38%,#17483e,#0a7463 46%,#052b25 78%);box-shadow:0 0 55px rgba(10,116,99,.25),inset -24px -18px 35px rgba(0,0,0,.45);opacity:.55}
+        .yeg-space-orbit{position:absolute;width:460px;height:180px;right:-120px;top:14%;border:1px solid rgba(52,211,153,.12);border-radius:50%;transform:rotate(-18deg);opacity:.55}.yeg-space-orbit-2{width:600px;height:240px;right:-200px;top:8%;border-color:rgba(56,189,248,.08);transform:rotate(22deg)}.yeg-space-orbit-dot{position:absolute;width:8px;height:8px;left:10%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:#34d399;box-shadow:0 0 18px rgba(52,211,153,.8)}
+        .yeg-loop-float,.yeg-loop-spin{will-change:transform}[data-yeg-theme] > :not(.yeg-space-background){position:relative;z-index:1}[data-yeg-theme="light"] .yeg-space-background{opacity:.16;filter:saturate(.7)}
+        @media(max-width:767px){.yeg-space-nebula{width:260px;height:260px}.yeg-space-planet{width:95px;height:95px;right:-35px}.yeg-space-orbit{width:300px;height:120px;right:-100px}.yeg-space-orbit-2{width:390px;height:155px;right:-140px}}
+        @media(prefers-reduced-motion:reduce){.yeg-space-background{display:none}}
+
         /* ============================================================
            YEG THEME SYSTEM — LIGHT MODE COMPLETE CONTRAST FIX
            Dark mode keeps the original visual language.
@@ -842,7 +607,7 @@ Terima kasih.`;
           <FounderCVSection onBackToHome={navigateToHome} />
         </main>
       ) : (
-        <main className="flex-1 pb-0 yeg-theme-content stacked-scroll-main">
+        <main className="flex-1 pb-0 yeg-theme-content">
           {/* ============================================================
               HERO COVER SECTION WITH ENLARGED CREATIVE LOGO
           ============================================================ */}
@@ -951,9 +716,9 @@ Terima kasih.`;
                 {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
                   ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
+                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform yeg-loop-float"
                 >
-                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
+                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none yeg-loop-spin" />
                   <div className="relative flex flex-col items-center justify-center">
                     <YegLogo size={360} animated={true} theme={theme} />
                     <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
@@ -1042,7 +807,7 @@ Terima kasih.`;
           {/* ============================================================
               TENTANG YEG PRODUCTION & PERUBAHAN KONSEP (GSAP Reveal)
           ============================================================ */}
-          <section id="section-tentang" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-tentang" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1207,7 +972,7 @@ Terima kasih.`;
           {/* ============================================================
               AWAL MULA YEG PRODUCTION (2025) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-how-it-started" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-how-it-started" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#fbbf24]" />
@@ -1271,7 +1036,7 @@ Terima kasih.`;
           {/* ============================================================
               BUSINESS MODEL (DUAL PILLARS) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-model-bisnis" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-model-bisnis" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1381,7 +1146,7 @@ Terima kasih.`;
           {/* ============================================================
               PRODUK PERTAMA & CUSTOMIZER (GSAP Reveal)
           ============================================================ */}
-          <section id="section-produk-pertama" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-produk-pertama" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
@@ -1448,7 +1213,7 @@ Terima kasih.`;
           {/* ============================================================
               KENAPA MEMULAI DARI PRODUK? (BOOTSTRAP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kenapa-produk" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kenapa-produk" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1518,7 +1283,7 @@ Terima kasih.`;
           {/* ============================================================
               CARA KAMI BEKERJA (6 PILAR) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-budaya-kerja" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-budaya-kerja" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#e879f9] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#c026d3]"></span>
@@ -1568,7 +1333,7 @@ Terima kasih.`;
           {/* ============================================================
               KENAPA YEG MEMBUTUHKAN PARTNER & KUIS (GSAP Reveal)
           ============================================================ */}
-          <section id="section-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1658,7 +1423,7 @@ Terima kasih.`;
           {/* ============================================================
               PERAN DALAM YEG PRODUCTION (6 LINGKUP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-peran-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-peran-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1713,7 +1478,7 @@ Terima kasih.`;
           {/* ============================================================
               COMPENSATION & WORKING SYSTEM (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kompensasi" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kompensasi" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#34d399]" />
@@ -1759,7 +1524,7 @@ Terima kasih.`;
           {/* ============================================================
               THE BIG VISION & ONE BRAND (GSAP Reveal)
           ============================================================ */}
-          <section id="section-visi-ekosistem" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-visi-ekosistem" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#818cf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#6366f1]"></span>
@@ -1815,7 +1580,7 @@ Terima kasih.`;
           {/* ============================================================
               DEDICATED FOUNDER PROFILE BANNER (Leads to 1-Page CV)
           ============================================================ */}
-          <section className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
+          <section className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
             <div className="p-5 sm:p-8 rounded-3xl bg-gradient-to-r from-[#032a30] via-[#093d38] to-[#0a4840] border border-[#34d399]/60 flex flex-col md:flex-row items-center justify-between gap-5 shadow-2xl">
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
@@ -1852,7 +1617,7 @@ Terima kasih.`;
           {/* ============================================================
               ROADMAP & DUAL COMMITMENT (GSAP Reveal)
           ============================================================ */}
-          <section id="section-roadmap-komitmen" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-roadmap-komitmen" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1942,7 +1707,7 @@ Terima kasih.`;
           {/* ============================================================
               FINAL CALL TO ACTION (GSAP Reveal) WITH ENLARGED LOGO
           ============================================================ */}
-          <section id="section-final-call" className="stacked-scroll-section gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
+          <section id="section-final-call" className="gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
             <div className="space-y-3">
               <span className="px-3.5 py-1 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-xs font-semibold uppercase tracking-wider font-mono">
                 FINAL QUESTION
