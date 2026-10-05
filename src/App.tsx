@@ -75,10 +75,10 @@ export default function App() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'));
   };
   
-    // Responsive GSAP animations using matchMedia (smooth on desktop, lightweight on mobile)
-  // ============================================================
+    // ============================================================
   // YEG ANIMATION SYSTEM
-  // Normal vertical scroll + reveal/stagger + subtle parallax.
+  // Hero intro + CTA -> Navbar Morph + section reveals + interactive space.
+  // The navbar stays hidden until the user has scrolled past the hero CTA.
   // ============================================================
   useLayoutEffect(() => {
     if (currentView !== 'home') return;
@@ -88,6 +88,22 @@ export default function App() {
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
+      const header = document.querySelector('header') as HTMLElement | null;
+      const navbarLogo = header?.querySelector('img') as HTMLElement | null;
+
+      // Keep the real navbar out of the layout until the Morph starts.
+      if (header) {
+        gsap.set(header, {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          opacity: 0,
+          y: -24,
+          pointerEvents: 'none',
+        });
+      }
 
       const heroTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
       heroTimeline
@@ -98,10 +114,92 @@ export default function App() {
         .fromTo(heroTaglineRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.28')
         .fromTo(heroDescRef.current, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.25')
         .fromTo(heroCtasRef.current, { opacity: 0, y: 18, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.55 }, '-=0.25')
-        .fromTo(heroVisualRef.current, { opacity: 0, y: 30, scale: 0.985 }, { opacity: 1, y: 0, scale: 1, duration: 0.7 }, '-=0.3')
-        .fromTo(heroMetricsRef.current, { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4');
+        .fromTo(heroMetricsRef.current, { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6 }, '-=0.35');
 
+      // ============================================================
+      // HERO -> NAVBAR MORPH
+      // The Morph starts only after the CTA has been passed, so the
+      // navbar does not suddenly appear at the very top of the page.
+      // ============================================================
       mm.add('(min-width: 768px)', () => {
+        if (header && heroCtasRef.current && heroLogoRef.current) {
+          const morphTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: heroCtasRef.current,
+              start: 'bottom 22%',
+              end: '+=520',
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          morphTl.to(header, {
+            opacity: 1,
+            y: 0,
+            pointerEvents: 'auto',
+            duration: 0.28,
+            ease: 'none',
+          }, 0);
+
+          // Hero brandmark physically travels toward the real navbar logo.
+          if (navbarLogo) {
+            const from = heroLogoRef.current.getBoundingClientRect();
+            const to = navbarLogo.getBoundingClientRect();
+            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+            const scale = Math.min(to.width / from.width, to.height / from.height);
+
+            morphTl.to(heroLogoRef.current, {
+              x: dx,
+              y: dy,
+              scale: Math.max(0.18, Math.min(scale, 0.5)),
+              duration: 1,
+              ease: 'power2.inOut',
+            }, 0);
+          } else {
+            morphTl.to(heroLogoRef.current, {
+              x: '35vw',
+              y: -260,
+              scale: 0.42,
+              duration: 1,
+              ease: 'power2.inOut',
+            }, 0);
+          }
+
+          const brandmark = heroLogoRef.current.querySelector('span');
+          if (brandmark) {
+            morphTl.to(brandmark, {
+              opacity: 0,
+              scale: 0.7,
+              duration: 0.35,
+              ease: 'none',
+            }, 0.45);
+          }
+
+          // CTA exits upward as the navbar becomes the new persistent CTA.
+          morphTl.to(heroCtasRef.current, {
+            y: -250,
+            scale: 0.72,
+            opacity: 0,
+            duration: 1,
+            ease: 'power2.inOut',
+          }, 0);
+
+          morphTl.to([
+            heroTitleRef.current,
+            heroSubtitleRef.current,
+            heroTaglineRef.current,
+            heroDescRef.current,
+          ], {
+            y: -24,
+            opacity: 0.9,
+            duration: 1,
+            stagger: 0.025,
+            ease: 'power2.out',
+          }, 0);
+        }
+
+        // Sections reveal with enough vertical breathing room between them.
         const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
         sections.forEach((section, index) => {
           gsap.fromTo(section, { opacity: 0, y: 42, scale: 0.985 }, {
@@ -129,13 +227,18 @@ export default function App() {
 
           const inner = section.querySelector(':scope > div');
           if (inner) gsap.to(inner, {
-            y: index % 2 === 0 ? -10 : 10, ease: 'none',
+            y: index % 2 === 0 ? -8 : 8, ease: 'none',
             scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1.4 }
           });
         });
       });
 
       mm.add('(max-width: 767px)', () => {
+        // Mobile keeps the navbar in normal app flow; no desktop Morph.
+        if (header) {
+          gsap.set(header, { position: 'relative', opacity: 1, y: 0, pointerEvents: 'auto' });
+        }
+
         const sections = gsap.utils.toArray<HTMLElement>('.gsap-reveal-section');
         sections.forEach(section => {
           gsap.fromTo(section, { opacity: 0, y: 24 }, {
@@ -150,14 +253,51 @@ export default function App() {
         });
       });
 
-      gsap.utils.toArray<HTMLElement>('.yeg-loop-float').forEach((el, i) => gsap.to(el, {
-        y: i % 2 === 0 ? -14 : 14, x: i % 3 === 0 ? 8 : -8, rotation: i % 2 === 0 ? 2 : -2,
-        duration: 3.2 + (i % 4) * 0.55, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: i * 0.15
-      }));
+      // Interactive space background: cursor parallax + local glow.
+      const space = document.querySelector('.yeg-space-background') as HTMLElement | null;
+      const stars = document.querySelector('.yeg-space-stars') as HTMLElement | null;
+      const glow = document.querySelector('.yeg-space-cursor-glow') as HTMLElement | null;
+      const glowA = document.querySelector('.yeg-space-glow-a') as HTMLElement | null;
+      const glowB = document.querySelector('.yeg-space-glow-b') as HTMLElement | null;
+      const planet = document.querySelector('.yeg-space-planet') as HTMLElement | null;
+      const orbit1 = document.querySelector('.yeg-space-orbit-1') as HTMLElement | null;
+      const orbit2 = document.querySelector('.yeg-space-orbit-2') as HTMLElement | null;
+
+      if (space && glow) {
+        onPointerMove = (event: PointerEvent) => {
+          const x = event.clientX / window.innerWidth - 0.5;
+          const y = event.clientY / window.innerHeight - 0.5;
+
+          gsap.to(glow, {
+            x: event.clientX - window.innerWidth / 2,
+            y: event.clientY - window.innerHeight / 2,
+            opacity: 1,
+            duration: 0.45,
+            ease: 'power2.out',
+            overwrite: true,
+          });
+          gsap.to(stars, { x: x * 18, y: y * 12, duration: 0.8, ease: 'power2.out', overwrite: true });
+          gsap.to(glowA, { x: x * -28, y: y * -20, duration: 1.1, ease: 'power2.out', overwrite: true });
+          gsap.to(glowB, { x: x * 24, y: y * 18, duration: 1.2, ease: 'power2.out', overwrite: true });
+          gsap.to(planet, { x: x * -18, y: y * -12, duration: 1.2, ease: 'power2.out', overwrite: true });
+          gsap.to(orbit1, { x: x * 22, y: y * 12, duration: 1, ease: 'power2.out', overwrite: true });
+          gsap.to(orbit2, { x: x * -16, y: y * -9, duration: 1.15, ease: 'power2.out', overwrite: true });
+        };
+        onPointerLeave = () => gsap.to(glow, { opacity: 0, duration: 0.5 });
+
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
+        window.addEventListener('pointerleave', onPointerLeave);
+      }
+
+      // Only the ambient elements loop. The hero brandmark itself must stay
+      // free so the Morph can control it precisely.
       gsap.utils.toArray<HTMLElement>('.yeg-loop-spin').forEach((el, i) => gsap.to(el, {
-        rotation: i % 2 === 0 ? 360 : -360, duration: 35 + i * 8, ease: 'none', repeat: -1
+        rotation: i % 2 === 0 ? 360 : -360,
+        duration: 35 + i * 8,
+        ease: 'none',
+        repeat: -1,
       }));
-      gsap.to('.yeg-space-stars', { backgroundPosition: '120px 80px', duration: 28, ease: 'none', repeat: -1 });
+
       requestAnimationFrame(() => ScrollTrigger.refresh());
     });
 
@@ -303,6 +443,19 @@ Terima kasih.`;
       </div>
 
       <style>{`
+
+        /* Hero fades into the interactive space background instead of ending abruptly. */
+        .yeg-hero-surface{
+          background:linear-gradient(180deg,#080d0c 0%,#080d0c 42%,rgba(8,13,12,.96) 64%,rgba(5,8,7,.78) 82%,rgba(5,8,7,0) 100%);
+        }
+        [data-yeg-theme="light"] .yeg-hero-surface{
+          background:linear-gradient(180deg,#f8fafc 0%,#f8fafc 42%,rgba(248,250,252,.96) 64%,rgba(248,250,252,.72) 82%,rgba(248,250,252,0) 100%);
+        }
+        .yeg-content-section{
+          margin-top:clamp(3.5rem,7vw,7rem) !important;
+          margin-bottom:clamp(3.5rem,7vw,7rem) !important;
+        }
+        .yeg-content-section:first-child{margin-top:0 !important;}
 
         /* Animated outer-space ambience */
         .yeg-space-background{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 18% 20%,rgba(10,116,99,.13),transparent 28%),radial-gradient(circle at 82% 28%,rgba(3,105,161,.11),transparent 25%),#050807}
@@ -635,7 +788,7 @@ Terima kasih.`;
           <section
             ref={heroRef}
             id="hero-cover"
-            className={`relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
+            className={`yeg-hero-surface relative pt-4 sm:pt-10 md:pt-14 pb-24 sm:pb-32 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
               theme === 'light' ? 'bg-white' : 'bg-[#080d0c]'
             }`}
           >
@@ -737,7 +890,7 @@ Terima kasih.`;
                 {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
                   ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform yeg-loop-float"
+                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
                 >
                   <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none yeg-loop-spin" />
                   <div className="relative flex flex-col items-center justify-center">
@@ -800,7 +953,7 @@ Terima kasih.`;
           {/* ============================================================
               TENTANG YEG PRODUCTION & PERUBAHAN KONSEP (GSAP Reveal)
           ============================================================ */}
-          <section id="section-tentang" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-tentang" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -965,7 +1118,7 @@ Terima kasih.`;
           {/* ============================================================
               AWAL MULA YEG PRODUCTION (2025) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-how-it-started" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-how-it-started" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#fbbf24]" />
@@ -1029,7 +1182,7 @@ Terima kasih.`;
           {/* ============================================================
               BUSINESS MODEL (DUAL PILLARS) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-model-bisnis" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-model-bisnis" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1139,7 +1292,7 @@ Terima kasih.`;
           {/* ============================================================
               PRODUK PERTAMA & CUSTOMIZER (GSAP Reveal)
           ============================================================ */}
-          <section id="section-produk-pertama" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-produk-pertama" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
@@ -1206,7 +1359,7 @@ Terima kasih.`;
           {/* ============================================================
               KENAPA MEMULAI DARI PRODUK? (BOOTSTRAP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kenapa-produk" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kenapa-produk" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1276,7 +1429,7 @@ Terima kasih.`;
           {/* ============================================================
               CARA KAMI BEKERJA (6 PILAR) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-budaya-kerja" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-budaya-kerja" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#e879f9] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#c026d3]"></span>
@@ -1326,7 +1479,7 @@ Terima kasih.`;
           {/* ============================================================
               KENAPA YEG MEMBUTUHKAN PARTNER & KUIS (GSAP Reveal)
           ============================================================ */}
-          <section id="section-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-partner" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1416,7 +1569,7 @@ Terima kasih.`;
           {/* ============================================================
               PERAN DALAM YEG PRODUCTION (6 LINGKUP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-peran-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-peran-partner" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1471,7 +1624,7 @@ Terima kasih.`;
           {/* ============================================================
               COMPENSATION & WORKING SYSTEM (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kompensasi" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kompensasi" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#34d399]" />
@@ -1517,7 +1670,7 @@ Terima kasih.`;
           {/* ============================================================
               THE BIG VISION & ONE BRAND (GSAP Reveal)
           ============================================================ */}
-          <section id="section-visi-ekosistem" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-visi-ekosistem" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#818cf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#6366f1]"></span>
@@ -1573,7 +1726,7 @@ Terima kasih.`;
           {/* ============================================================
               DEDICATED FOUNDER PROFILE BANNER (Leads to 1-Page CV)
           ============================================================ */}
-          <section className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
+          <section className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
             <div className="p-5 sm:p-8 rounded-3xl bg-gradient-to-r from-[#032a30] via-[#093d38] to-[#0a4840] border border-[#34d399]/60 flex flex-col md:flex-row items-center justify-between gap-5 shadow-2xl">
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
@@ -1610,7 +1763,7 @@ Terima kasih.`;
           {/* ============================================================
               ROADMAP & DUAL COMMITMENT (GSAP Reveal)
           ============================================================ */}
-          <section id="section-roadmap-komitmen" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-roadmap-komitmen" className="gsap-reveal-section yeg-content-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1700,7 +1853,7 @@ Terima kasih.`;
           {/* ============================================================
               FINAL CALL TO ACTION (GSAP Reveal) WITH ENLARGED LOGO
           ============================================================ */}
-          <section id="section-final-call" className="gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
+          <section id="section-final-call" className="gsap-reveal-section yeg-content-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
             <div className="space-y-3">
               <span className="px-3.5 py-1 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-xs font-semibold uppercase tracking-wider font-mono">
                 FINAL QUESTION
