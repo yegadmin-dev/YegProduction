@@ -10,7 +10,6 @@ import { PartnerQuizMatcher } from './components/PartnerQuizMatcher';
 import { SectionDivider } from './components/SectionDivider';
 import { YegLogo } from './components/YegLogo';
 import { downloadPitchDeckPdf } from './utils/pdfExport';
-import founderPhoto from './assets/images/m_ridhwan_mubarok_founder.jpg';
 import {
   Sparkles,
   Download,
@@ -54,6 +53,7 @@ export default function App() {
   const heroTaglineRef = useRef<HTMLDivElement>(null);
   const heroDescRef = useRef<HTMLParagraphElement>(null);
   const heroCtasRef = useRef<HTMLDivElement>(null);
+  const heroVisualRef = useRef<HTMLDivElement>(null);
   const heroMetricsRef = useRef<HTMLDivElement>(null);
 
   const navigateToCv = () => {
@@ -126,6 +126,12 @@ heroCtasRef.current,
 { opacity: 0, scale: 0.96, y: 15 },
 { opacity: 1, scale: 1, y: 0, duration: 0.5 }, 
 '-=0.2' 
+) 
+.fromTo( 
+heroVisualRef.current, 
+{ opacity: 0, y: 30 }, 
+{ opacity: 1, y: 0, duration: 0.7 },
+ '-=0.3'
 ) 
 .fromTo(
 heroMetricsRef.current, 
@@ -260,81 +266,199 @@ heroMetricsRef.current,
           );
         }
 
-        // ClipPath reveal on desktop
-        const revealSections = document.querySelectorAll('.gsap-reveal-section');
-        revealSections.forEach((section, index) => {
-          const initialClip =
-            index % 2 === 0
-              ? 'inset(6% 0% 6% 0% round 28px)'
-              : 'inset(0% 4% 0% 4% round 28px)';
+        // Hero visual subtle parallax
+        if (heroVisualRef.current) {
+          gsap.to(heroVisualRef.current, {
+            scrollTrigger: {
+              trigger: heroRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+            y: -25,
+            opacity: 0.95,
+          });
+        }
+
+        // ============================================================
+        // STACKED LAYER TRANSITION — DESKTOP
+        // The next section rises over the previous section.
+        // ============================================================
+        const stackedSections = document.querySelectorAll<HTMLElement>(
+          '.stacked-scroll-section'
+        );
+
+        stackedSections.forEach((section, index) => {
+          if (index === 0) {
+            gsap.set(section, { opacity: 1, scale: 1, yPercent: 0 });
+            return;
+          }
 
           gsap.fromTo(
             section,
-            { clipPath: initialClip, opacity: 0.2, y: 40 },
             {
-              clipPath: 'inset(0% 0% 0% 0% round 28px)',
+              yPercent: 8,
+              opacity: 0.18,
+              scale: 0.96,
+            },
+            {
+              yPercent: 0,
               opacity: 1,
-              y: 0,
-              duration: 0.9,
-              ease: 'power3.out',
+              scale: 1,
+              ease: 'none',
               scrollTrigger: {
                 trigger: section,
-                start: 'top 85%',
-                end: 'bottom 15%',
-                toggleActions: 'play none none reverse',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 0.8,
+                invalidateOnRefresh: true,
               },
             }
           );
 
-          const innerCards = section.querySelectorAll('.gsap-card-stagger');
-          if (innerCards.length > 0) {
-            gsap.fromTo(
-              innerCards,
-              { opacity: 0, y: 25, scale: 0.98 },
-              {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.6,
-                stagger: 0.08,
-                ease: 'power2.out',
-                scrollTrigger: {
-                  trigger: section,
-                  start: 'top 80%',
-                  toggleActions: 'play none none reverse',
-                },
-              }
-            );
+          // Keep the section underneath subtly pushed back while the
+          // next layer comes forward.
+          if (index > 0) {
+            const previous = stackedSections[index - 1] as HTMLElement;
+
+            gsap.to(previous, {
+              scale: 0.965,
+              opacity: 0.72,
+              filter: 'brightness(0.72)',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 90%',
+                end: 'top 10%',
+                scrub: 0.8,
+                invalidateOnRefresh: true,
+              },
+            });
           }
         });
-      });
 
-      // MOBILE (max-width: 767px): Lightweight smooth fade & subtle 20px slide (zero clipping)
+      // ============================================================
+      // MOBILE (max-width: 767px)
+      // Logo diperkecil + dipindah ke atas konten.
+      // Navbar muncul setelah user mulai scroll dan tetap sticky di atas.
+      // Desktop animation di atas tidak disentuh.
+      // ============================================================
       mm.add('(max-width: 767px)', () => {
+        const header = document.getElementById('yeg-floating-header') || document.querySelector('header');
+
+        // Navbar mobile: tersembunyi ketika masih di paling atas.
+        if (header) {
+          gsap.set(header, {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            zIndex: 100,
+            autoAlpha: 0,
+            y: -18,
+            pointerEvents: 'none',
+          });
+        }
+
+        // Hero masuk dengan animasi ringan.
         gsap.fromTo(
           [heroLogoRef.current, heroTitleRef.current, heroSubtitleRef.current, heroCtasRef.current],
           { opacity: 0, y: 15 },
           { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
         );
 
-        const revealSections = document.querySelectorAll('.gsap-reveal-section');
-        revealSections.forEach((section) => {
+        // Navbar muncul ketika scroll melewati sedikit bagian hero.
+        let navbarTrigger: ScrollTrigger | null = null;
+
+        if (header && heroRef.current) {
+          navbarTrigger = ScrollTrigger.create({
+            trigger: heroRef.current,
+            start: 'top top-=1',
+            end: '+=260',
+            onUpdate: (self) => {
+              if (self.progress > 0.10) {
+                gsap.to(header, {
+                  autoAlpha: 1,
+                  y: 0,
+                  duration: 0.28,
+                  ease: 'power3.out',
+                  pointerEvents: 'auto',
+                  overwrite: true,
+                });
+              } else {
+                gsap.to(header, {
+                  autoAlpha: 0,
+                  y: -18,
+                  duration: 0.22,
+                  ease: 'power2.in',
+                  pointerEvents: 'none',
+                  overwrite: true,
+                });
+              }
+            },
+          });
+        }
+
+        // ============================================================
+        // STACKED LAYER TRANSITION — MOBILE
+        // Lighter than desktop so scrolling stays responsive.
+        // ============================================================
+        const stackedSections = document.querySelectorAll<HTMLElement>(
+          '.stacked-scroll-section'
+        );
+
+        stackedSections.forEach((section, index) => {
+          if (index === 0) {
+            gsap.set(section, { opacity: 1, scale: 1, yPercent: 0 });
+            return;
+          }
+
           gsap.fromTo(
             section,
-            { opacity: 0.1, y: 20 },
             {
+              yPercent: 5,
+              opacity: 0.2,
+              scale: 0.985,
+            },
+            {
+              yPercent: 0,
               opacity: 1,
-              y: 0,
-              duration: 0.5,
-              ease: 'power2.out',
+              scale: 1,
+              ease: 'none',
               scrollTrigger: {
                 trigger: section,
-                start: 'top 92%',
-                toggleActions: 'play none none reverse',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 0.65,
+                invalidateOnRefresh: true,
               },
             }
           );
+
+          const previous = stackedSections[index - 1] as HTMLElement;
+
+          gsap.to(previous, {
+            scale: 0.98,
+            opacity: 0.78,
+            filter: 'brightness(0.82)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 92%',
+              end: 'top 12%',
+              scrub: 0.65,
+              invalidateOnRefresh: true,
+            },
+          });
         });
+
+        return () => {
+          navbarTrigger?.kill();
+          if (header) {
+            gsap.set(header, { clearProps: 'all' });
+          }
+        };
       });
     }, heroRef);
 
@@ -758,6 +882,91 @@ Terima kasih.`;
           color: white !important;
         }
       `}</style>
+      {/* ============================================================
+          STACKED SCROLL / LAYERED STORYTELLING
+          Each section becomes a full-screen sticky layer. The next
+          section slides over the previous one while GSAP handles the
+          fade/scale transition.
+      ============================================================ */}
+      <style>{`
+        .stacked-scroll-main {
+          position: relative;
+          overflow: clip;
+        }
+
+        .stacked-scroll-section {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          width: 100vw;
+          max-width: none !important;
+          min-height: 100svh;
+          margin-left: calc(50% - 50vw) !important;
+          margin-right: calc(50% - 50vw) !important;
+          padding-left: max(0.875rem, calc((100vw - 72rem) / 2 + 1.5rem));
+          padding-right: max(0.875rem, calc((100vw - 72rem) / 2 + 1.5rem));
+          padding-top: clamp(4.5rem, 8vh, 7rem);
+          padding-bottom: clamp(3rem, 7vh, 6rem);
+          display: flex;
+          align-items: center;
+          box-sizing: border-box;
+          isolation: isolate;
+          overflow: hidden;
+          background: #080d0c;
+          box-shadow: 0 -18px 55px rgba(0,0,0,.22);
+        }
+
+        .stacked-scroll-section::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          background: inherit;
+        }
+
+        .stacked-scroll-section > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        .stacked-scroll-hero {
+          min-height: 100svh;
+          padding-top: 4.5rem;
+        }
+
+        [data-yeg-theme="light"] .stacked-scroll-section {
+          background: #ffffff;
+        }
+
+        /* The old reveal animation is replaced by the layered transition. */
+        .stacked-scroll-section.gsap-reveal-section {
+          will-change: transform, opacity;
+        }
+
+        @media (max-width: 767px) {
+          .stacked-scroll-section {
+            min-height: 100svh;
+            padding-left: 0.875rem;
+            padding-right: 0.875rem;
+            padding-top: 4.25rem;
+            padding-bottom: 2.5rem;
+            align-items: center;
+          }
+
+          .stacked-scroll-hero {
+            padding-top: 4.5rem;
+            padding-bottom: 2rem;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .stacked-scroll-section {
+            position: relative;
+            min-height: auto;
+          }
+        }
+      `}</style>
+
       {/* Top Bar Header with Enlarged Logo & Profil Founder CTA */}
       <HeaderNav
         currentView={currentView}
@@ -774,14 +983,14 @@ Terima kasih.`;
           <FounderCVSection onBackToHome={navigateToHome} />
         </main>
       ) : (
-        <main className="flex-1 space-y-12 sm:space-y-20 md:space-y-24 pb-24 yeg-theme-content">
+        <main className="flex-1 pb-0 yeg-theme-content stacked-scroll-main">
           {/* ============================================================
               HERO COVER SECTION WITH ENLARGED CREATIVE LOGO
           ============================================================ */}
           <section
             ref={heroRef}
             id="hero-cover"
-            className={`relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
+            className={`stacked-scroll-section stacked-scroll-hero relative pt-4 sm:pt-10 md:pt-14 px-3.5 sm:px-6 md:px-8 overflow-hidden transition-colors duration-300 ${
               theme === 'light' ? 'bg-white' : 'bg-[#080d0c]'
             }`}
           >
@@ -789,9 +998,21 @@ Terima kasih.`;
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[320px] sm:w-[600px] h-[320px] bg-[#0a7463]/18 rounded-full blur-[110px] pointer-events-none" />
 
             <div className="max-w-6xl mx-auto relative z-10">
+              {/* Top Badges */}
+              <div ref={heroBadgeRef} className="flex flex-wrap items-center gap-2 mb-6 sm:mb-8">
+                <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-[11px] sm:text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
+                  CREATIVE PRODUCTION PLATFORM
+                </span>
+                <span className="text-neutral-500">·</span>
+                <span className="px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-700/80 text-[11px] sm:text-xs text-neutral-300 font-mono">
+                  Est. 2025 · Bandung
+                </span>
+              </div>
+
               {/* HERO CONTENT: text left + large logo right */}
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 lg:gap-12 items-center min-h-[560px] lg:min-h-[620px]">
-                <div className="space-y-6 sm:space-y-8">
+                <div className="space-y-6 sm:space-y-8 order-last lg:order-first">
                   {/* Main Headline */}
                   <div className="space-y-2.5 sm:space-y-4 max-w-4xl">
                     <h1
@@ -871,79 +1092,97 @@ Terima kasih.`;
                 {/* Large brandmark on the right. This is the element that morphs into the navbar logo. */}
                 <div
                   ref={heroLogoRef}
-                  className="relative flex justify-center lg:justify-end items-center min-h-[300px] lg:min-h-[430px] origin-center will-change-transform"
+                  className="relative flex justify-center lg:justify-end items-center min-h-[190px] sm:min-h-[230px] lg:min-h-[430px] origin-center will-change-transform order-first lg:order-last -mt-2 sm:mt-0"
                 >
-                  <div className="absolute w-[250px] h-[250px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[90px] pointer-events-none" />
+                  <div className="absolute w-[170px] h-[170px] sm:w-[220px] sm:h-[220px] lg:w-[380px] lg:h-[380px] bg-[#0a7463]/20 rounded-full blur-[65px] sm:blur-[80px] lg:blur-[90px] pointer-events-none" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <YegLogo size={360} animated={true} theme={theme} />
-                    <span className="mt-4 text-[10px] sm:text-xs font-mono tracking-[0.35em] text-[#34d399] uppercase font-bold">
+                    <div className="scale-[0.58] sm:scale-[0.74] lg:scale-100 origin-center"><YegLogo size={360} animated={true} theme={theme} /></div>
+                    <span className="mt-0 sm:mt-2 lg:mt-4 text-[8px] sm:text-xs font-mono tracking-[0.28em] sm:tracking-[0.35em] text-[#34d399] uppercase font-bold">
                       YEG BRANDMARK
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Key Highlights — horizontal layout, visual asset removed */}
-              <div
-                ref={heroMetricsRef}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2 sm:pt-4"
-              >
-                {[
-                  {
-                    num: '2025',
-                    label: 'Awal Mula Dirintis',
-                    sub: 'Project desain & branding',
-                    color: 'text-[#fbbf24]',
-                    border: 'hover:border-[#f59e0b]/50',
-                  },
-                  {
-                    num: '2 Pilar',
-                    label: 'Creative + Production',
-                    sub: 'Jasa visual + manufaktur fisik',
-                    color: 'text-[#38bdf8]',
-                    border: 'hover:border-[#0284c7]/50',
-                  },
-                  {
-                    num: '1 Partner',
-                    label: 'Production Partner',
-                    sub: 'Tumbuh bersama dari nol',
-                    color: 'text-[#34d399]',
-                    border: 'hover:border-[#0a7463]/50',
-                  },
-                  {
-                    num: '100%',
-                    label: 'Transparansi',
-                    sub: 'Bagi hasil project terbuka',
-                    color: 'text-[#e879f9]',
-                    border: 'hover:border-[#c026d3]/50',
-                  },
-                ].map((stat, idx) => (
-                  <div
-                    key={idx}
-                    className={`gsap-card-stagger p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[#0f1514] border border-neutral-800 ${stat.border} transition-colors flex flex-col justify-center min-h-[125px]`}
-                  >
-                    <span className={`text-2xl sm:text-3xl font-black ${stat.color} font-heading`}>
-                      {stat.num}
-                    </span>
-                    <span className="text-sm sm:text-base font-bold text-white mt-1">
-                      {stat.label}
-                    </span>
-                    <span className="text-xs sm:text-sm text-neutral-400 mt-1 leading-tight">
-                      {stat.sub}
+              {/* Studio Visual Asset & Key Highlights */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch pt-2 sm:pt-4">
+                <div
+                  ref={heroVisualRef}
+                  className="lg:col-span-8 relative rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl aspect-[16/10] sm:aspect-[16/9] max-h-[380px] sm:max-h-[440px]"
+                >
+                  <img
+                    src="/src/assets/images/yeg_creative_studio_1791037426847.jpg"
+                    alt="YEG Production Creative Studio"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 text-white">
+                    <div>
+                      <span className="text-[10px] sm:text-xs font-mono text-[#34d399] font-bold uppercase tracking-wider block">
+                        CREATIVE PRODUCTION OPERATIONS
+                      </span>
+                      <h3 className="text-base sm:text-2xl font-bold font-heading mt-0.5">
+                        Menghubungkan Ide Visual dengan Produksi Fisik
+                      </h3>
+                    </div>
+                    <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 text-[11px] sm:text-xs text-neutral-300 self-start sm:self-auto font-medium">
+                      Kombinasi Desain & Vendor
                     </span>
                   </div>
-                ))}
+                </div>
+
+                {/* 4 Interactive Snapshot Metrics: Compact 2x2 grid on mobile */}
+                <div ref={heroMetricsRef} className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3.5">
+                  {[
+                    {
+                      num: '2025',
+                      label: 'Awal Mula Dirintis',
+                      sub: 'Project desain & branding',
+                      color: 'text-[#fbbf24]',
+                      border: 'hover:border-[#f59e0b]/50',
+                    },
+                    {
+                      num: '2 Pilar',
+                      label: 'Creative + Production',
+                      sub: 'Jasa visual + manufaktur fisik',
+                      color: 'text-[#38bdf8]',
+                      border: 'hover:border-[#0284c7]/50',
+                    },
+                    {
+                      num: '1 Partner',
+                      label: 'Production Partner',
+                      sub: 'Tumbuh bersama dari nol',
+                      color: 'text-[#34d399]',
+                      border: 'hover:border-[#0a7463]/50',
+                    },
+                    {
+                      num: '100%',
+                      label: 'Transparansi',
+                      sub: 'Bagi hasil project terbuka',
+                      color: 'text-[#e879f9]',
+                      border: 'hover:border-[#c026d3]/50',
+                    },
+                  ].map((stat, idx) => (
+                    <div
+                      key={idx}
+                      className={`gsap-card-stagger p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0f1514] border border-neutral-800 ${stat.border} transition-colors flex flex-col justify-center`}
+                    >
+                      <span className={`text-xl sm:text-3xl font-black ${stat.color} font-heading`}>
+                        {stat.num}
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-white mt-0.5">{stat.label}</span>
+                      <span className="text-[10px] sm:text-xs text-neutral-400 mt-0.5 leading-tight">{stat.sub}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="emerald" />
-
-          {/* ============================================================
+{/* ============================================================
               TENTANG YEG PRODUCTION & PERUBAHAN KONSEP (GSAP Reveal)
           ============================================================ */}
-          <section id="section-tentang" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-tentang" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1104,14 +1343,10 @@ Terima kasih.`;
               )}
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="amber" />
-
-          {/* ============================================================
+{/* ============================================================
               AWAL MULA YEG PRODUCTION (2025) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-how-it-started" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-how-it-started" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#fbbf24]" />
@@ -1171,14 +1406,10 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="blue" />
-
-          {/* ============================================================
+{/* ============================================================
               BUSINESS MODEL (DUAL PILLARS) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-model-bisnis" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-model-bisnis" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1284,14 +1515,10 @@ Terima kasih.`;
               </span>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="amber" />
-
-          {/* ============================================================
+{/* ============================================================
               PRODUK PERTAMA & CUSTOMIZER (GSAP Reveal)
           ============================================================ */}
-          <section id="section-produk-pertama" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-produk-pertama" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#fbbf24] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
@@ -1354,14 +1581,10 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="emerald" />
-
-          {/* ============================================================
+{/* ============================================================
               KENAPA MEMULAI DARI PRODUK? (BOOTSTRAP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kenapa-produk" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kenapa-produk" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1427,14 +1650,10 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="purple" />
-
-          {/* ============================================================
+{/* ============================================================
               CARA KAMI BEKERJA (6 PILAR) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-budaya-kerja" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-budaya-kerja" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#e879f9] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#c026d3]"></span>
@@ -1480,14 +1699,10 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="emerald" />
-
-          {/* ============================================================
+{/* ============================================================
               KENAPA YEG MEMBUTUHKAN PARTNER & KUIS (GSAP Reveal)
           ============================================================ */}
-          <section id="section-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1573,14 +1788,10 @@ Terima kasih.`;
             {/* Interactive Partner Matcher Quiz */}
             <PartnerQuizMatcher onOpenCandidateForm={() => setIsCandidateModalOpen(true)} />
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="blue" />
-
-          {/* ============================================================
+{/* ============================================================
               PERAN DALAM YEG PRODUCTION (6 LINGKUP) (GSAP Reveal)
           ============================================================ */}
-          <section id="section-peran-partner" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-peran-partner" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#38bdf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0284c7]"></span>
@@ -1631,14 +1842,10 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="emerald" />
-
-          {/* ============================================================
+{/* ============================================================
               COMPENSATION & WORKING SYSTEM (GSAP Reveal)
           ============================================================ */}
-          <section id="section-kompensasi" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-kompensasi" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#34d399]" />
@@ -1680,14 +1887,10 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="purple" />
-
-          {/* ============================================================
+{/* ============================================================
               THE BIG VISION & ONE BRAND (GSAP Reveal)
           ============================================================ */}
-          <section id="section-visi-ekosistem" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-visi-ekosistem" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#818cf8] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#6366f1]"></span>
@@ -1739,20 +1942,16 @@ Terima kasih.`;
               </p>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="amber" />
-
-          {/* ============================================================
+{/* ============================================================
               DEDICATED FOUNDER PROFILE BANNER (Leads to 1-Page CV)
           ============================================================ */}
-          <section className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
+          <section className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8">
             <div className="p-5 sm:p-8 rounded-3xl bg-gradient-to-r from-[#032a30] via-[#093d38] to-[#0a4840] border border-[#34d399]/60 flex flex-col md:flex-row items-center justify-between gap-5 shadow-2xl">
               <div className="flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#34d399] shadow-lg shrink-0">
                   <img
-                    src= {founderPhoto}
-                    alt="Kak Ridhwan (M. Ridhwan Mubarok) - Founder YEG Production"
+                    src="/src/assets/images/m_ridhwan_mubarok_founder_1791040301376.jpg"
+                    alt="Kak Ridhwan - Founder YEG"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top"
                   />
@@ -1779,14 +1978,10 @@ Terima kasih.`;
               </button>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="emerald" />
-
-          {/* ============================================================
+{/* ============================================================
               ROADMAP & DUAL COMMITMENT (GSAP Reveal)
           ============================================================ */}
-          <section id="section-roadmap-komitmen" className="gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
+          <section id="section-roadmap-komitmen" className="stacked-scroll-section gsap-reveal-section max-w-6xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-6 sm:space-y-8">
             <div className="space-y-2">
               <span className="text-xs sm:text-sm font-semibold text-[#34d399] uppercase tracking-wider font-mono flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#0a7463]"></span>
@@ -1872,14 +2067,10 @@ Terima kasih.`;
               </div>
             </div>
           </section>
-
-          {/* Animated Section Divider */}
-          <SectionDivider variant="purple" />
-
-          {/* ============================================================
+{/* ============================================================
               FINAL CALL TO ACTION (GSAP Reveal) WITH ENLARGED LOGO
           ============================================================ */}
-          <section id="section-final-call" className="gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
+          <section id="section-final-call" className="stacked-scroll-section gsap-reveal-section max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 text-center space-y-6 sm:space-y-8">
             <div className="space-y-3">
               <span className="px-3.5 py-1 rounded-full bg-[#0a7463]/25 border border-[#0a7463]/50 text-[#34d399] text-xs font-semibold uppercase tracking-wider font-mono">
                 FINAL QUESTION
